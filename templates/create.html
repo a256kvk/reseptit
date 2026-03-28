@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block title %}Uusi resepti{% endblock %}
+
+{% block content %}
+  <form action="/create" method="post">
+    <input type="hidden" name="csrf_token" value="{{session.csrf_token}}">
+    <p>
+      Otsikko <br>
+      <input type="text" name="title">
+    </p>
+    <p>
+      Kuvaus <br>
+      <textarea type="content" name="description"></textarea>
+    </p>
+    <p>
+      Ainesosat <br>
+      <textarea type="content" name="ingredients"></textarea>
+    </p>
+      Ohjeet <br>
+      <textarea type="content" name="instructions"></textarea>
+    <p>{{instructions}}</p>
+    <input type="submit" value="Luo resepti">
+  </form>
+{% endblock %}

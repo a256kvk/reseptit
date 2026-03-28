@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %}Kirjautuminen{% endblock %}
+
+{% block content %}
+  <form action="/login" method="post">
+    <p>
+      Käyttäjänimi
+      <input type="text" pattern="{{username_regex}}" name="username">
+    </p>
+    <p>
+      Salasana
+      <input type="password" name="password">
+    </p>
+    <input type="submit" value="Kirjaudu sisään">
+  </form>
+{% endblock %}

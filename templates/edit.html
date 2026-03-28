@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block title %}Muokkaa reseptiä{% endblock %}
+
+{% block content %}
+  <form action="/edit/{{recipe.id}}" method="post">
+    <input type="hidden" name="csrf_token" value="{{session.csrf_token}}">
+    <p>
+      Otsikko <br>
+      <input type="text" name="title" value="{{recipe.title}}">
+    </p>
+    <p>
+      Kuvaus <br>
+      <textarea type="content" name="description">{{recipe.description}}</textarea>
+    </p>
+    <p>
+      Ainesosat <br>
+      <textarea type="content" name="ingredients">{{recipe.ingredients}}</textarea>
+    </p>
+      Ohjeet <br>
+      <textarea type="content" name="instructions">{{recipe.instructions}}</textarea>
+    <p>{{instructions}}</p>
+    <input type="submit" value="Julkaise muokkaukset">
+  </form>
+{% endblock %}

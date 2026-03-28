@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}Rekisteröinti{% endblock %}
+
+{% block content %}
+  <form action="/register" method="post">
+    <p>
+    <b>Käyttäjänimi</b>, sallitut kirjaimet: a-z ja _ <br>
+      <input type="text" pattern="{{username_regex}}" name="username">
+    </p>
+    <p>
+      Salasana <br>
+      <input type="password" name="password1">
+    </p>
+    <p>
+      Salasana uudelleen <br>
+      <input type="password" name="password2">
+    </p>
+    <input type="submit" value="Luo käyttäjä">
+  </form>
+{% endblock %}

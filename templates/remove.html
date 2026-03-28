@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block title %}Muokkaa reseptiä{% endblock %}
+
+{% block content %}
+  <form action="/remove/{{recipe.id}}" method="post">
+    <input type="hidden" name="csrf_token" value="{{session.csrf_token}}">
+    <p>Olet poistamassa reseptiä {{recipe.title}} <br>
+    <input type="submit" name="continue" value="Poista resepti">
+    <input type="submit" name="cancel" value="Peruuta">
+    </p>
+  </form>
+{% endblock %}

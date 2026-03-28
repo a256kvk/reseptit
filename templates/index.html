@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}Reseptit{% endblock %}
+
+{% block content %}
+  <form action="/search?" method="get">
+    <p>
+      <input type="text" name="q">
+      <input type="submit" value="Hae">
+    </p>
+  </form>
+  {% if session.user_id %}
+  <a href="/create">Luo resepti</a>
+
+  {% else %}
+  <p>Voit lisätä reseptejä vain jos olet kirjautunut sisään</p>
+
+  {% endif %}
+  <div>
+      <h1>Reseptit</h1>
+      <ul>
+      {%for recipe in recipes%}
+      <li><a href="/recipe/{{recipe.id}}">{{recipe.title}}</a></li>
+      {%endfor%}
+      </ul>
+  </div>
+{% endblock %}

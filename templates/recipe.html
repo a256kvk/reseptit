@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block title %}{{recipe.title}}{% endblock %}
+
+{% block content %}
+  <article>
+    <h1>{{recipe.title}}</h1>
+    <p>{{recipe.description}}</p>
+    <h2>Ainesosat</h2>
+    <p>{{recipe.ingredients}}</p>
+    <h2>Ohjeet</h2>
+    <p>{{recipe.instructions}}</p>
+    <p>Resepti on <a href="/user/{{recipe.username}}">{{recipe.username}}</a>:n</p>
+    {% if session.user_id == recipe.user_id %}
+    <a href="/edit/{{recipe.id}}">Muokkaa</a>
+    <a href="/remove/{{recipe.id}}">Poista</a>
+    {% endif %}
+  </article>
+{% endblock %}
