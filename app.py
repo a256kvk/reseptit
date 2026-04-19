@@ -3,7 +3,7 @@ import re
 import sqlite3
 
 from flask import Flask
-from flask import abort, redirect, render_template, request, session
+from flask import abort, flash, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import queries
@@ -52,21 +52,21 @@ def register():
     if request.method=="POST":
         username = request.form["username"]
         if not re.fullmatch(USERNAME_REGEX,username):
-            return "VÄÄRÄNLAINEN KÄYTTÄJÄNIMI"
+            return flash("VÄÄRÄNLAINEN KÄYTTÄJÄNIMI")
         password1 = request.form["username"]
         password1 = request.form["password1"]
         password2 = request.form["password2"]
         if password1 != password2:
-            return "SALASANOJEN TÄYTYY OLLA SAMAT"
+            return flash("SALASANOJEN TÄYTYY OLLA SAMAT")
 
         password_hash = generate_password_hash(password1)
 
         try:
             queries.create_user(username,password_hash)
         except sqlite3.IntegrityError:
-            return "Jollain muulla käyttäjällä on jo tämä nimi"
+            return flash("Jollain muulla käyttäjällä on jo tämä nimi")
 
-        return "KÄYTTÄJÄTUNNUKSEN LUOMINEN ONNISTUI!"
+        return flash("KÄYTTÄJÄTUNNUKSEN LUOMINEN ONNISTUI!")
 
 
 @app.route("/login", methods=["GET","POST"])
@@ -79,12 +79,12 @@ def login():
 
         res=queries.get_login_info(username)
         if res is None:
-            return "Käyttäjää ei ole olemassa"
+            return flash("Käyttäjää ei ole olemassa")
 
         password_hash = res["password_hash"]
 
         if not check_password_hash(password_hash,password):
-            return "Väärä salasana"
+            return flash("Väärä salasana")
 
         user_id = res["id"]
         session["username"] = username
@@ -174,7 +174,7 @@ def remove(recipe_id):
         if recipe is None:
             abort(404)
 
-        if recipe["user_id"] != session["user_id"]:
+        if recipe_data["user_id"] != session["user_id"]:
             abort(403)
 
         return render_template("remove.html", recipe=recipe_data)
@@ -195,12 +195,15 @@ def remove(recipe_id):
 @app.route("/search")
 def search():
     query=request.args.get("q")
+
+    categories=request.args.getlist("category")
+
     if query is not None:
-        categories=request.args.getlist("category")
         recipes=queries.search_recipes(query,categories)
     else:
-        recipes=[]
+        recipes=get_recipes()
         query=""
 
     return render_template("search.html",recipes=recipes,query=query,
-                           categories=queries.get_categories())
+                           categories=queries.get_categories(),
+                           current_categories=set([int(i) for i in categories]))

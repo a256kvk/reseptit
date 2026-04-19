@@ -7,10 +7,9 @@
 
 <body>
   <div>
+  <a href="/">Reseptit</a>
   {% if session.user_id %}
-  <p>
-  {{session.username}}
-  </p>
+  <a href="/user/{{session.user_id}}">{{session.username}}</p>
   {% endif %}
 
   {% if session.user_id %}
