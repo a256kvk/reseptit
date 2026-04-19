@@ -26,6 +26,21 @@ def get_recipe(recipe_id):
 
     return res[0]
 
+def get_user(user_id):
+    command="""
+    SELECT id, username
+    FROM Users
+    WHERE id = ?
+    """
+    res=db.query(command, [user_id]);
+    if len(res)!=1:
+        return None
+    return res[0]
+
+def get_user_recipes(user_id):
+    command="SELECT id, title FROM Recipes WHERE user_id = ?"
+    recipes=db.query(command,[user_id])
+    return recipes
 
 def delete_recipe_if_allowed(recipe_id,user_id):
     command="DELETE FROM Recipes WHERE id = ? AND user_id = ?"
@@ -39,6 +54,14 @@ def check_csrf():
 def index():
     recipes=db.query("SELECT id, title FROM Recipes")
     return render_template("index.html",recipes=recipes)
+
+@app.route("/user/<int:user_id>")
+def user(user_id):
+    userdata=get_user(user_id)
+    if userdata is None:
+        abort(404)
+    recipes=get_user_recipes(user_id)
+    return render_template("user.html",user=userdata,recipes=recipes)
 
 @app.route("/recipe/<int:recipe_id>")
 def recipe(recipe_id):
