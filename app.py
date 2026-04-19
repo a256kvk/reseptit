@@ -47,6 +47,26 @@ def get_categories():
     res=db.query(command)
     return res
 
+def get_reviews(recipe_id):
+    command="""
+    SELECT username, user_id, rating, content
+    FROM Reviews R JOIN Users U ON U.id = R.user_id
+    WHERE recipe_id = ?
+    """
+    comments=db.query(command,[recipe_id])
+    return comments
+
+def get_user_review(recipe_id,user_id):
+    if user_id is None:
+        return None
+    command="""
+    SELECT rating, content FROM Reviews WHERE recipe_id = ? AND user_id = ?
+    """
+    review=db.query(command,[recipe_id,user_id])
+    if len(review)!=1:
+        return None
+    return review[0]
+
 def get_recipe_categories(recipe_id):
     command="""
     SELECT C.id, name
@@ -83,8 +103,12 @@ def recipe(recipe_id):
     if recipe_data is None:
         abort(404)
     categories=get_recipe_categories(recipe_id)
+    user_id=session.get("user_id")
+    user_review=get_user_review(recipe_id,user_id)
     return render_template("recipe.html", recipe=recipe_data,
-                           categories=categories)
+                           categories=categories,
+                           reviews=get_reviews(recipe_id),
+                           user_review=user_review)
 
 USERNAME_REGEX="[a-zA-Z0-9_]{1,20}"
 
@@ -218,6 +242,26 @@ def edit(recipe_id):
             db.execute(insert_categories_command, [recipe_id, category_id])
 
         return redirect(f"/recipe/{recipe_id}")
+
+@app.route("/review", methods=["POST"])
+def create_review():
+    if "user_id" not in session:
+        abort(403)
+
+    check_csrf()
+
+    user_id=session["user_id"]
+    recipe_id=request.form["recipe_id"]
+    rating=request.form["rating"]
+    content=request.form["content"]
+
+    command="""
+    REPLACE INTO Reviews (user_id, recipe_id, rating, content)
+    VALUES (?, ?, ?, ?)
+    """
+    db.execute(command,[user_id,recipe_id,rating,content])
+    return redirect(f"/recipe/{recipe_id}")
+    
 
 @app.route("/remove/<int:recipe_id>", methods=["GET","POST"])
 def remove(recipe_id):
