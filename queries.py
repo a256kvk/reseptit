@@ -4,7 +4,7 @@ import db
 
 def get_recipe(recipe_id):
     command="""
-    SELECT Recipes.id id, user_id, username, title, description, ingredients, 
+    SELECT Recipes.id id, user_id, username, title, description, ingredients,
            instructions
     FROM Recipes JOIN Users ON user_id=Users.id
     WHERE Recipes.id = ?
@@ -21,41 +21,43 @@ def get_recipes():
 
 def create_recipe(user_id,title,description,ingredients,instructions,
                   categories):
-    command="""
-    INSERT INTO Recipes (user_id, title, description, ingredients,
-                         instructions)
-    VALUES (?, ?, ?, ?, ?)
-    """
-    params=[user_id,title,description,ingredients,instructions]
-    db.execute(command,params)
-    recipe_id = g.last_insert_id
+    with db.get_cursor() as cur:
+        command="""
+        INSERT INTO Recipes (user_id, title, description, ingredients,
+                             instructions)
+        VALUES (?, ?, ?, ?, ?)
+        """
+        params=[user_id,title,description,ingredients,instructions]
+        res=cur.execute(command,params)
+        recipe_id=res.lastrowid
 
-    insert_categories_command="""
-    INSERT INTO Recipe_Categories (recipe_id, category_id) VALUES (?, ?)
-    """
-    for category_id in categories:
-        db.execute(insert_categories_command, [recipe_id, category_id])
+        insert_categories_command="""
+        INSERT INTO Recipe_Categories (recipe_id, category_id) VALUES (?, ?)
+        """
+        for category_id in categories:
+            cur.execute(insert_categories_command, [recipe_id, category_id])
 
     return recipe_id
 
 def update_recipe(title,description,ingredients,instructions,recipe_id,user_id,
                   categories):
-    command="""
-    UPDATE Recipes
-    SET title = ?, description = ?, ingredients = ?, instructions = ?
-    WHERE id = ? AND user_id = ?
-    """
-    params=[title,description,ingredients,instructions,recipe_id,user_id]
-    db.execute(command, params)
+    with db.get_cursor() as cur:
+        command="""
+        UPDATE Recipes
+        SET title = ?, description = ?, ingredients = ?, instructions = ?
+        WHERE id = ? AND user_id = ?
+        """
+        params=[title,description,ingredients,instructions,recipe_id,user_id]
+        cur.execute(command, params)
 
-    delete_command="DELETE FROM Recipe_Categories WHERE recipe_id = ?"
-    db.execute(delete_command, [recipe_id])
+        delete_command="DELETE FROM Recipe_Categories WHERE recipe_id = ?"
+        cur.execute(delete_command, [recipe_id])
 
-    insert_categories_command="""
-    INSERT INTO Recipe_Categories (recipe_id, category_id) VALUES (?, ?)
-    """
-    for category_id in categories:
-        db.execute(insert_categories_command, [recipe_id, category_id])
+        insert_categories_command="""
+        INSERT INTO Recipe_Categories (recipe_id, category_id) VALUES (?, ?)
+        """
+        for category_id in categories:
+            cur.execute(insert_categories_command, [recipe_id, category_id])
 
 def get_user_statistics(user_id):
     command="""
@@ -120,8 +122,11 @@ def get_recipe_categories(recipe_id):
     return res
 
 def delete_recipe(recipe_id):
-    db.execute("DELETE FROM Recipe_Categories WHERE recipe_id = ?", [recipe_id])
-    db.execute("DELETE FROM Recipes WHERE id = ?", [recipe_id])
+    with db.get_cursor() as cur:
+        cur.execute("DELETE FROM Recipe_Categories WHERE recipe_id = ?",
+                    [recipe_id])
+        cur.execute("DELETE FROM Reviews WHERE recipe_id = ?",[recipe_id])
+        cur.execute("DELETE FROM Recipes WHERE id = ?", [recipe_id])
 
 def create_user(username,password_hash):
     command = "INSERT INTO Users (username, password_hash) VALUES (?, ?)"
