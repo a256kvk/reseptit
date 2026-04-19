@@ -29,6 +29,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install flask
 sqlite3 database.db < schema.sql
+sqlite3 database.db < add_categories.sql
 cp config_test.py config.py
 flask run
 ```
