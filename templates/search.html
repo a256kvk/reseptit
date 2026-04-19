@@ -9,7 +9,7 @@
       <input type="submit" value="Hae">
     </p>
     {%for category in categories%}
-	<label>{{category.name}}<input type="checkbox" name="category" value="{{category.id}}" {% if category.id in current_categories %} checked {%endif%}></label><br>
+    <label>{{category.name}}<input type="checkbox" name="category" value="{{category.id}}" {% if category.id in current_categories %} checked {%endif%}></label><br>
     {%endfor%}
   </form>
   {% if session.user_id %}

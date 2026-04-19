@@ -5,20 +5,20 @@
 {% block content %}
   <div>
     <h1>Käyttäjä {{user.username}}</h1>
-	<h2>Tilastot</h2>
-	<table>
-	  <tbody>
+    <h2>Tilastot</h2>
+    <table>
+      <tbody>
         <tr>
-			<td>Reseptien määrä</td><td>{{user.recipe_count}}</td>
-		</tr>
+            <td>Reseptien määrä</td><td>{{user.recipe_count}}</td>
+        </tr>
         <tr>
-			<td>Arvostelujen määrä</td><td>{{user.review_count}}</td>
-		</tr>
+            <td>Arvostelujen määrä</td><td>{{user.review_count}}</td>
+        </tr>
         <tr>
-			<td>Reseptien keskiarvoinen arvostelu</td><td>{{user.avg_rating if user.avg_rating else "-"}}</td>
-		</tr>
-	  </tbody>
-	</table>
+            <td>Reseptien keskiarvoinen arvostelu</td><td>{{user.avg_rating if user.avg_rating else "-"}}</td>
+        </tr>
+      </tbody>
+    </table>
     <h2>Reseptit</h2>
     <ul>
       {%for recipe in recipes%}

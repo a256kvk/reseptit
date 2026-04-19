@@ -5,11 +5,11 @@
 {% block content %}
   <article>
     <h1>{{recipe.title}}</h1>
-	<b>Luokittelut:</b>
+    <b>Luokittelut:</b>
     {%for category in categories%}
-	{{category.name}}
+    {{category.name}}
     {%endfor%}
-	<h2>Kuvaus</h2>
+    <h2>Kuvaus</h2>
     <p>{{recipe.description}}</p>
     <h2>Ainesosat</h2>
     <p>{{recipe.ingredients}}</p>
@@ -28,21 +28,21 @@
     <input type="hidden" name="csrf_token" value="{{session.csrf_token}}">
     <input type="hidden" name="recipe_id" value="{{recipe.id}}">
     <h3>
-		{% if user_review %}
-		Muokkaa arvostelua
-		{% else %}
-		Lisää arvostelu
-		{% endif %}
-	</h3>
+        {% if user_review %}
+        Muokkaa arvostelua
+        {% else %}
+        Lisää arvostelu
+        {% endif %}
+    </h3>
     <p class="stars">
       Tähdet
       {% for i in range(1,6) %}
-	  <label>{{i}}<input type="radio" name="rating" value="{{i}}" {% if i==(user_review.rating if user_review.rating else 3) %} checked {% endif %}></label>
+      <label>{{i}}<input type="radio" name="rating" value="{{i}}" {% if i==(user_review.rating if user_review.rating else 3) %} checked {% endif %}></label>
       {% endfor %}
     </p>
     <p>
       Kommentti <br>
-	  <textarea type="content" name="content">{{user_review.content}}</textarea>
+      <textarea type="content" name="content">{{user_review.content}}</textarea>
     </p>
     <input type="submit" value="Julkaise arvostelu">
   </form>
@@ -52,9 +52,9 @@
 
   {% for review in reviews %}
   <article>
-	  <h3>Käyttäjän {{review.username}} arvostelu</h3>
-	  <p> Tähdet: {{review.rating}} </p>
-	  <p>{{review.content}}</p>
+      <h3>Käyttäjän {{review.username}} arvostelu</h3>
+      <p> Tähdet: {{review.rating}} </p>
+      <p>{{review.content}}</p>
   </article>
   {% endfor %}
 
