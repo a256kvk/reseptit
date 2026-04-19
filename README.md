@@ -8,7 +8,6 @@
 * Käyttäjä voi etsiä reseptejä hakusanalla tai luokittelujen perusteella
 * Käyttäjä voi lisätä resepteihin arvostelun yhdestä viiteen ja tekstiarvostelun
 * Käyttäjä voi luokitella reseptejään lisäämällä useita luokitteluja: esimerkiksi italialainen, leivonnainen, kala
-* Sovelluksessa on käyttäjäsivut, jotka sisältävät tilastoja käyttäjästä esimerkiksi käyttäjän lisäämien reseptien ja arvostelujen määrät ja käyttäjän lisäämien reseptien arvosanojen keskiarvon ja kaikki käyttäjän lisäämät reseptit
 
 ## Valmiina olevat toiminnot
 * Käyttäjä voi tehdä tunnuksen ja kirjautua sisään
@@ -16,7 +15,7 @@
 * Käyttäjä näkee sovellukseen lisätyt reseptit
 * Käyttäjä voi lisätä resepteihin arvostelun yhdestä viiteen ja tekstiarvostelun
 * Käyttäjä voi luokitella reseptejään lisäämällä useita luokitteluja: esimerkiksi italialainen, leivonnainen, kala
-* Sovelluksessa on käyttäjäsivut, jotka sisältävät käyttäjän lisäämät reseptit
+* Sovelluksessa on käyttäjäsivut, jotka sisältävät tilastoja käyttäjästä esimerkiksi käyttäjän lisäämien reseptien ja arvostelujen määrät ja käyttäjän lisäämien reseptien arvosanojen keskiarvon ja kaikki käyttäjän lisäämät reseptit
 
 ## Osittain valmina olevat toiminnot
 * Käyttäjä voi etsiä reseptejä hakusanalla tai luokittelujen perusteella
