@@ -32,7 +32,7 @@ def get_user(user_id):
     FROM Users
     WHERE id = ?
     """
-    res=db.query(command, [user_id]);
+    res=db.query(command, [user_id])
     if len(res)!=1:
         return None
     return res[0]
@@ -42,9 +42,23 @@ def get_user_recipes(user_id):
     recipes=db.query(command,[user_id])
     return recipes
 
-def delete_recipe_if_allowed(recipe_id,user_id):
-    command="DELETE FROM Recipes WHERE id = ? AND user_id = ?"
-    db.execute(command, [recipe_id,user_id])
+def get_categories():
+    command="SELECT id, name FROM Categories"
+    res=db.query(command)
+    return res
+
+def get_recipe_categories(recipe_id):
+    command="""
+    SELECT C.id, name
+    FROM Recipe_Categories RC JOIN Categories C ON RC.category_id = C.id
+    WHERE RC.recipe_id = ?
+    """
+    res=db.query(command,[recipe_id])
+    return res
+
+def delete_recipe(recipe_id):
+    db.execute("DELETE FROM Recipe_Categories WHERE recipe_id = ?", [recipe_id])
+    db.execute("DELETE FROM Recipes WHERE id = ?", [recipe_id])
 
 def check_csrf():
     if request.form["csrf_token"] != session["csrf_token"]:
@@ -65,10 +79,12 @@ def user(user_id):
 
 @app.route("/recipe/<int:recipe_id>")
 def recipe(recipe_id):
-    recipe=get_recipe(recipe_id)
-    if recipe is None:
+    recipe_data=get_recipe(recipe_id)
+    if recipe_data is None:
         abort(404)
-    return render_template("recipe.html", recipe=recipe)
+    categories=get_recipe_categories(recipe_id)
+    return render_template("recipe.html", recipe=recipe_data,
+                           categories=categories)
 
 USERNAME_REGEX="[a-zA-Z0-9_]{1,20}"
 
@@ -133,7 +149,7 @@ def logout():
 @app.route("/create", methods=["GET","POST"])
 def create():
     if request.method=="GET":
-        return render_template("create.html")
+        return render_template("create.html",categories=get_categories())
     if request.method=="POST":
         check_csrf()
 
@@ -152,19 +168,29 @@ def create():
         db.execute(command,params)
         recipe_id = g.last_insert_id
 
+        insert_categories_command="""
+        INSERT INTO Recipe_Categories (recipe_id, category_id) VALUES (?, ?)
+        """
+        for category_id in request.form.getlist("category"):
+            db.execute(insert_categories_command, [recipe_id, category_id])
+
         return redirect(f"/recipe/{recipe_id}")
 
 @app.route("/edit/<int:recipe_id>", methods=["GET","POST"])
 def edit(recipe_id):
     if request.method=="GET":
-        recipe=get_recipe(recipe_id)
-        if recipe is None:
+        recipe_data=get_recipe(recipe_id)
+        if recipe_data is None:
             abort(404)
 
-        if recipe["user_id"] != session["user_id"]:
+        if recipe_data["user_id"] != session["user_id"]:
             abort(403)
 
-        return render_template("edit.html", recipe=recipe)
+        current_categories={r["id"] for r in get_recipe_categories(recipe_id)}
+
+        return render_template("edit.html", recipe=recipe_data,
+                               categories=get_categories(),
+                               current_categories=current_categories)
     if request.method=="POST":
         check_csrf()
 
@@ -182,12 +208,21 @@ def edit(recipe_id):
         params=[title,description,ingredients,instructions,recipe_id,user_id]
         db.execute(command, params)
 
+        delete_command="DELETE FROM Recipe_Categories WHERE recipe_id = ?"
+        db.execute(delete_command, [recipe_id])
+
+        insert_categories_command="""
+        INSERT INTO Recipe_Categories (recipe_id, category_id) VALUES (?, ?)
+        """
+        for category_id in request.form.getlist("category"):
+            db.execute(insert_categories_command, [recipe_id, category_id])
+
         return redirect(f"/recipe/{recipe_id}")
 
 @app.route("/remove/<int:recipe_id>", methods=["GET","POST"])
 def remove(recipe_id):
     if request.method=="GET":
-        recipe=get_recipe(recipe_id)
+        recipe_data=get_recipe(recipe_id)
 
         if recipe is None:
             abort(404)
@@ -195,14 +230,17 @@ def remove(recipe_id):
         if recipe["user_id"] != session["user_id"]:
             abort(403)
 
-        return render_template("remove.html", recipe=recipe)
+        return render_template("remove.html", recipe=recipe_data)
     if request.method=="POST":
         if "continue" not in request.form:
             return redirect(f"/recipe/{recipe_id}")
         check_csrf()
 
+        recipe_data=get_recipe(recipe_id)
+        if recipe_data["user_id"] != session["user_id"]:
+            abort(403)
 
-        delete_recipe_if_allowed(recipe_id,session["user_id"])
+        delete_recipe(recipe_id)
 
         return redirect("/")
 

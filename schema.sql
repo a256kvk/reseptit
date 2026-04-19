@@ -11,4 +11,15 @@ CREATE TABLE Recipes (
 	description TEXT,
 	ingredients TEXT,
 	instructions TEXT
-)
+);
+
+CREATE TABLE Categories (
+	id INTEGER PRIMARY KEY,
+	name TEXT UNIQUE
+);
+
+CREATE TABLE Recipe_Categories (
+	id INTEGER PRIMARY KEY,
+	recipe_id REFERENCES Recipes,
+	category_id REFERENCES Categories
+);
