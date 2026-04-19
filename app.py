@@ -92,7 +92,8 @@ def check_csrf():
 @app.route("/")
 def index():
     recipes=db.query("SELECT id, title FROM Recipes")
-    return render_template("index.html",recipes=recipes)
+    return render_template("index.html",recipes=recipes,
+                           categories=get_categories())
 
 @app.route("/user/<int:user_id>")
 def user(user_id):
@@ -297,9 +298,39 @@ def remove(recipe_id):
 @app.route("/search")
 def search():
     query=request.args.get("q")
-    if query=="":
-        return redirect("/")
-    command="SELECT id, title FROM Recipes WHERE title LIKE ? OR description LIKE ? OR ingredients LIKE ? OR instructions LIKE ?"
-    query_parameter="%"+query+"%"
-    recipes=db.query(command,[query_parameter,query_parameter,query_parameter,query_parameter])
-    return render_template("search.html",recipes=recipes,query=query)
+    if query is not None:
+        categories=request.args.getlist("category")
+        n=len(categories)
+        query_parameter="%"+query+"%"
+        if n==0:
+            command="""
+            SELECT id, title
+            FROM Recipes
+            WHERE 
+                title LIKE ? OR description LIKE ? OR ingredients LIKE ? 
+                OR instructions LIKE ?
+            """
+            params=[query_parameter]*4
+        else:
+            lst='('+','.join(['?']*n)+')'
+            command=f"""
+            SELECT R.id, title
+            FROM Recipes R JOIN Recipe_Categories C ON R.id = recipe_id
+            WHERE
+                (title LIKE ? OR description LIKE ? OR ingredients LIKE ? 
+                OR instructions LIKE ?) 
+                AND C.category_id in {lst}
+            GROUP BY R.id
+            HAVING COUNT(DISTINCT C.category_id) = ?
+            """
+            params=[query_parameter]*4+categories+[len(categories)]
+            print("komento")
+            print(command)
+            print(params)
+        recipes=db.query(command,params)
+    else:
+        recipes=[]
+        query=""
+        
+    return render_template("search.html",recipes=recipes,query=query,
+                           categories=get_categories())
