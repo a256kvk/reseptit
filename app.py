@@ -28,11 +28,16 @@ def get_recipe(recipe_id):
 
 def get_user(user_id):
     command="""
-    SELECT id, username
+    SELECT id, username,
+        (SELECT COUNT(*) FROM Recipes WHERE user_id=?) recipe_count,
+        (SELECT COUNT(*) FROM Reviews WHERE user_id=?) review_count,
+        (SELECT AVG(rating)
+        FROM Reviews V JOIN Recipes R ON recipe_id = R.id
+        WHERE R.user_id=?) avg_rating
     FROM Users
     WHERE id = ?
     """
-    res=db.query(command, [user_id])
+    res=db.query(command, [user_id,user_id,user_id,user_id])
     if len(res)!=1:
         return None
     return res[0]
