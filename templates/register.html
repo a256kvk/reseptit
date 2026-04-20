@@ -6,15 +6,15 @@
   <form action="/register" method="post">
     <p>
     <b>Käyttäjänimi</b>, sallitut kirjaimet: a-z ja _ <br>
-      <input type="text" pattern="{{username_regex}}" name="username">
+    <input type="text" pattern="{{username_regex}}" name="username" minlength="{{username_minlength}}" maxlength="{{username_maxlength}}" required>
     </p>
     <p>
       Salasana <br>
-      <input type="password" name="password1">
+      <input type="password" name="password1" minlength="{{password_minlength}}" required>
     </p>
     <p>
       Salasana uudelleen <br>
-      <input type="password" name="password2">
+      <input type="password" name="password2" minlength="{{password_minlength}}" required>
     </p>
     <input type="submit" value="Luo käyttäjä">
   </form>

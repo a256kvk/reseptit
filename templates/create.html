@@ -7,18 +7,18 @@
     <input type="hidden" name="csrf_token" value="{{session.csrf_token}}">
     <p>
       Otsikko <br>
-      <input type="text" name="title">
+      <input type="text" name="title" minlength="{{title_minlength}}" maxlength="{{title_maxlength}}" required>
     </p>
     <p>
       Kuvaus <br>
-      <textarea type="content" name="description"></textarea>
+      <textarea type="content" name="description" maxlength="{{description_maxlength}}"></textarea>
     </p>
     <p>
       Ainesosat <br>
-      <textarea type="content" name="ingredients"></textarea>
+      <textarea type="content" name="ingredients" maxlength="{{ingredients_maxlength}}"></textarea>
     </p>
       Ohjeet <br>
-      <textarea type="content" name="instructions"></textarea>
+      <textarea type="content" name="instructions" maxlength="{{instructions_maxlength}}"></textarea>
     <p>{{instructions}}</p>
 
     <h2>Luokittelut</h2>

@@ -43,30 +43,58 @@ def recipe(recipe_id):
                            reviews=queries.get_reviews(recipe_id),
                            user_review=user_review)
 
+USERNAME_MINLENGTH=1
+USERNAME_MAXLENGTH=20
 USERNAME_REGEX="[a-zA-Z0-9_]{1,20}"
+PASSWORD_MINLENGTH=3
+
+TITLE_MINLENGTH=1
+TITLE_MAXLENGTH=50
+DESCRIPTION_MAXLENGTH=500
+INGREDIENTS_MAXLENGTH=5000
+INSTRUCTIONS_MAXLENGTH=5000
+
+REVIEW_MAXLENGTH=500
 
 @app.route("/register", methods=["GET","POST"])
 def register():
     if request.method=="GET":
-        return render_template("register.html",username_regex=USERNAME_REGEX)
+        return render_template("register.html",username_regex=USERNAME_REGEX,
+                               username_minlength=USERNAME_MINLENGTH,
+                               username_maxlength=USERNAME_MAXLENGTH,
+                               password_minlength=PASSWORD_MINLENGTH)
     if request.method=="POST":
         username = request.form["username"]
+        if username<USERNAME_MINLENGTH:
+            flash("liian lyhyt käyttäjänimi","error")
+            return redirect("/register")
+        if username>USERNAME_MAXLENGTH:
+            flash("liian pitkä käyttäjänimi","error")
+            return redirect("/register")
         if not re.fullmatch(USERNAME_REGEX,username):
-            return flash("VÄÄRÄNLAINEN KÄYTTÄJÄNIMI")
+            flash("VÄÄRÄNLAINEN KÄYTTÄJÄNIMI","error")
+            return redirect("/register")
         password1 = request.form["username"]
         password1 = request.form["password1"]
         password2 = request.form["password2"]
         if password1 != password2:
-            return flash("SALASANOJEN TÄYTYY OLLA SAMAT")
+            flash("SALASANOJEN TÄYTYY OLLA SAMAT","error")
+            return redirect("/register")
+
+        if len(password1)<PASSWORD_MINLENGTH:
+            flash("liian lyhyt salasana","error")
+            return redirect("/register")
 
         password_hash = generate_password_hash(password1)
 
         try:
             queries.create_user(username,password_hash)
         except sqlite3.IntegrityError:
-            return flash("Jollain muulla käyttäjällä on jo tämä nimi")
+            flash("Jollain muulla käyttäjällä on jo tämä nimi","error")
+            return redirect("/register")
 
-        return flash("KÄYTTÄJÄTUNNUKSEN LUOMINEN ONNISTUI!")
+        flash("KÄYTTÄJÄTUNNUKSEN LUOMINEN ONNISTUI!","info")
+        return redirect("/")
 
 
 @app.route("/login", methods=["GET","POST"])
@@ -79,12 +107,12 @@ def login():
 
         res=queries.get_login_info(username)
         if res is None:
-            return flash("Käyttäjää ei ole olemassa")
+            return flash("Käyttäjää ei ole olemassa","error")
 
         password_hash = res["password_hash"]
 
         if not check_password_hash(password_hash,password):
-            return flash("Väärä salasana")
+            return flash("Väärä salasana","error")
 
         user_id = res["id"]
         session["username"] = username
@@ -103,7 +131,13 @@ def logout():
 @app.route("/create", methods=["GET","POST"])
 def create():
     if request.method=="GET":
-        return render_template("create.html",categories=queries.get_categories())
+        return render_template("create.html",
+                               categories=queries.get_categories(),
+                               title_minlength=TITLE_MINLENGTH,
+                               title_maxlength=TITLE_MAXLENGTH,
+                               description_maxlength=DESCRIPTION_MAXLENGTH,
+                               ingredients_maxlength=INGREDIENTS_MAXLENGTH,
+                               instructions_maxlength=INSTRUCTIONS_MAXLENGTH)
     if request.method=="POST":
         check_csrf()
 
@@ -113,6 +147,22 @@ def create():
         ingredients=request.form["ingredients"]
         instructions=request.form["instructions"]
         categories=request.form.getlist("category")
+
+        if len(title)<TITLE_MINLENGTH:
+            flash("liian lyhyt otsikko","error")
+            return redirect("/create")
+        if len(title)>TITLE_MAXLENGTH:
+            flash("liian pitkä otsikko","error")
+            return redirect("/create")
+        if len(description)>DESCRIPTION_MAXLENGTH:
+            flash("liian pitkä kuvaus","error")
+            return redirect("/create")
+        if len(ingredients)>INGREDIENTS_MAXLENGTH:
+            flash("liian pitkä ainesosat","error")
+            return redirect("/create")
+        if len(instructions)>INSTRUCTIONS_MAXLENGTH:
+            flash("liian pitkät ohjeet","error")
+            return redirect("/create")
 
         recipe_id=queries.create_recipe(user_id,title,description,ingredients,
                                         instructions,categories)
@@ -134,7 +184,12 @@ def edit(recipe_id):
 
         return render_template("edit.html", recipe=recipe_data,
                                categories=queries.get_categories(),
-                               current_categories=current_categories)
+                               current_categories=current_categories,
+                               title_minlength=TITLE_MINLENGTH,
+                               title_maxlength=TITLE_MAXLENGTH,
+                               description_maxlength=DESCRIPTION_MAXLENGTH,
+                               ingredients_maxlength=INGREDIENTS_MAXLENGTH,
+                               instructions_maxlength=INSTRUCTIONS_MAXLENGTH)
     if request.method=="POST":
         check_csrf()
 
@@ -144,6 +199,22 @@ def edit(recipe_id):
         ingredients=request.form["ingredients"]
         instructions=request.form["instructions"]
         categories=request.form.getlist("category")
+
+        if len(title)<TITLE_MINLENGTH:
+            flash("liian lyhyt otsikko","error")
+            return redirect("/create")
+        if len(title)>TITLE_MAXLENGTH:
+            flash("liian pitkä otsikko","error")
+            return redirect(f"/edit/{recipe_id}")
+        if len(description)>DESCRIPTION_MAXLENGTH:
+            flash("liian pitkä kuvaus","error")
+            return redirect(f"/edit/{recipe_id}")
+        if len(ingredients)>INGREDIENTS_MAXLENGTH:
+            flash("liian pitkä ainesosat","error")
+            return redirect(f"/edit/{recipe_id}")
+        if len(instructions)>INSTRUCTIONS_MAXLENGTH:
+            flash("liian pitkät ohjeet","error")
+            return redirect(f"/edit/{recipe_id}")
 
         queries.update_recipe(title,description,ingredients,instructions,
                               recipe_id,user_id,categories)
@@ -161,6 +232,9 @@ def create_review():
     recipe_id=request.form["recipe_id"]
     rating=request.form["rating"]
     content=request.form["content"]
+    if len(content)>REVIEW_MAXLENGTH:
+        flash("liian pitkä kommentti","error")
+        return redirect(f"/recipe/{recipe_id}")
 
     queries.create_review(user_id,recipe_id,rating,content)
     return redirect(f"/recipe/{recipe_id}")
