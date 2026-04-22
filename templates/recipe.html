@@ -10,11 +10,11 @@
     {{category.name}}
     {%endfor%}
     <h2>Kuvaus</h2>
-    <p>{{recipe.description}}</p>
+    <p class="article-content">{{recipe.description}}</p>
     <h2>Ainesosat</h2>
-    <p>{{recipe.ingredients}}</p>
+    <p class="article-content">{{recipe.ingredients}}</p>
     <h2>Ohjeet</h2>
-    <p>{{recipe.instructions}}</p>
+    <p class="article-content">{{recipe.instructions}}</p>
     <p>Resepti on <a href="/user/{{recipe.user_id}}">{{recipe.username}}</a>:n</p>
     {% if session.user_id == recipe.user_id %}
     <a href="/edit/{{recipe.id}}">Muokkaa</a>
@@ -54,7 +54,7 @@
   <article>
       <h3>Käyttäjän {{review.username}} arvostelu</h3>
       <p> Tähdet: {{review.rating}} </p>
-      <p>{{review.content}}</p>
+      <p class="comment-content">{{review.content}}</p>
   </article>
   {% endfor %}
 
