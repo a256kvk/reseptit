@@ -1,24 +1,27 @@
 {% extends "layout.html" %}
 
-{% block title %}Muokkaa reseptiä{% endblock %}
+{% block title %}{{title}}{% endblock %}
 
 {% block content %}
-  <form action="/edit/{{recipe.id}}" method="post">
+    <h1>{{title}}</h1>
+    <form action="{{post_url}}" method="post">
     <input type="hidden" name="csrf_token" value="{{session.csrf_token}}">
-    <p>
-      Otsikko <br>
+    <div>
+      <label for="title">Otsikko</label><br>
       <input type="text" name="title" minlength="{{title_minlength}}" maxlength="{{title_maxlength}}" value="{{recipe.title}}" required>
-    </p>
-    <p>
-      Kuvaus <br>
+    </div>
+    <div>
+      <label for="description">Kuvaus</label> <br>
       <textarea type="content" name="description" maxlength="{{description_maxlength}}">{{recipe.description}}</textarea>
-    </p>
-    <p>
-      Ainesosat <br>
+    </div>
+    <div>
+      <label for="ingredients">Ainesosat</label> <br>
       <textarea type="content" name="ingredients" maxlength="{{ingredients_maxlength}}">{{recipe.ingredients}}</textarea>
-    </p>
-      Ohjeet <br>
+    </div>
+    <div>
+      <label for="instructions">Ohjeet</label> <br>
       <textarea type="content" name="instructions" maxlength="{{instructions_maxlength}}">{{recipe.instructions}}</textarea>
+    </div>
     <p>{{instructions}}</p>
     <h2>Luokittelut</h2>
     {%for category in categories%}

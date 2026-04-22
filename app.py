@@ -131,7 +131,9 @@ def logout():
 @app.route("/create", methods=["GET", "POST"])
 def create():
     if request.method == "GET":
-        return render_template("create.html",
+        return render_template("editor.html", recipe={},
+                               title="Uusi resepti",
+                               post_url="/create",
                                categories=queries.get_categories(),
                                title_minlength=TITLE_MINLENGTH,
                                title_maxlength=TITLE_MAXLENGTH,
@@ -183,7 +185,9 @@ def edit(recipe_id):
         categories = queries.get_recipe_categories(recipe_id)
         current_categories = {r["id"] for r in categories}
 
-        return render_template("edit.html", recipe=recipe_data,
+        return render_template("editor.html", recipe=recipe_data,
+                               title="Muokkaa reseptiä",
+                               post_url=f"/edit/{recipe_id}",
                                categories=queries.get_categories(),
                                current_categories=current_categories,
                                title_minlength=TITLE_MINLENGTH,
