@@ -276,7 +276,7 @@ def search():
     if query is not None:
         recipes = queries.search_recipes(query,categories)
     else:
-        recipes = quries.get_recipes()
+        recipes = queries.get_recipes()
         query = ""
 
     categories_set = {int(i) for i in categories}
