@@ -5,12 +5,14 @@
 {% block content %}
   <form action="/login" method="post">
     <p>
-      Käyttäjänimi
+      <label for="username">Käyttäjänimi</label><br>
       <input type="text" pattern="{{username_regex}}" name="username">
+      </label>
     </p>
     <p>
-      Salasana
+      <label for="password">Salasana</label><br>
       <input type="password" name="password">
+      </label>
     </p>
     <input type="submit" value="Kirjaudu sisään">
   </form>

@@ -5,15 +5,15 @@
 {% block content %}
   <form action="/register" method="post">
     <p>
-    <b>Käyttäjänimi</b>, sallitut kirjaimet: a-z ja _ <br>
-    <input type="text" pattern="{{username_regex}}" name="username" minlength="{{username_minlength}}" maxlength="{{username_maxlength}}" required>
+      <label for="username"><b>Käyttäjänimi</b>, sallitut kirjaimet: a-z ja _ </label><br>
+      <input type="text" pattern="{{username_regex}}" name="username" minlength="{{username_minlength}}" maxlength="{{username_maxlength}}" required>
     </p>
     <p>
-      Salasana <br>
+      <label for="password1"> Salasana</label><br>
       <input type="password" name="password1" minlength="{{password_minlength}}" required>
     </p>
     <p>
-      Salasana uudelleen <br>
+      <label for="password2">Salasana uudelleen</label><br>
       <input type="password" name="password2" minlength="{{password_minlength}}" required>
     </p>
     <input type="submit" value="Luo käyttäjä">
