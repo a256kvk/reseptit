@@ -65,10 +65,10 @@ def register():
                                password_minlength=PASSWORD_MINLENGTH)
     if request.method == "POST":
         username = request.form["username"]
-        if username < USERNAME_MINLENGTH:
+        if len(username) < USERNAME_MINLENGTH:
             flash("liian lyhyt käyttäjänimi", "error")
             return redirect("/register")
-        if username > USERNAME_MAXLENGTH:
+        if len(username) > USERNAME_MAXLENGTH:
             flash("liian pitkä käyttäjänimi", "error")
             return redirect("/register")
         if not re.fullmatch(USERNAME_REGEX, username):
