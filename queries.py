@@ -1,3 +1,5 @@
+import re
+
 import db
 
 def get_recipe(recipe_id):
@@ -138,29 +140,55 @@ def get_login_info(username):
         return None
     return res[0]
 
-def search_recipes(query, categories):
-    n=len(categories)
-    query_parameter = "%" + query + "%"
+def create_fts5_query(raw_input):
+    # removes all characters that aren't alphanumeric or whitespace
+    sanitized = re.sub(r"[^\w\s]","",raw_input)
+    keyword_list = sanitized.split()
+    fts5_query = " OR ".join(keyword_list)
+    return fts5_query
+
+def get_recipes_categories(categories):
+    n = len(categories)
     if n == 0:
         command = """
         SELECT id, title
         FROM Recipes
-        WHERE 
-            title LIKE ? OR description LIKE ? OR ingredients LIKE ? 
-            OR instructions LIKE ?
         """
-        params = [query_parameter]*4
+        params = []
     else:
         lst = '(' + ','.join(['?']*n) + ')'
         command = f"""
         SELECT R.id, title
         FROM Recipes R JOIN Recipe_Categories C ON R.id = recipe_id
-        WHERE
-            (title LIKE ? OR description LIKE ? OR ingredients LIKE ? 
-            OR instructions LIKE ?) 
-            AND C.category_id in {lst}
+        WHERE C.category_id in {lst}
         GROUP BY R.id
         HAVING COUNT(DISTINCT C.category_id) = ?
         """
-        params = [query_parameter]*4 + categories + [len(categories)]
+        params = categories + [n]
+    return db.query(command, params)
+
+def search_recipes(query, categories):
+    n = len(categories)
+    fts5_query = create_fts5_query(query)
+
+    if fts5_query == '':
+        return get_recipes_categories(categories)
+
+    if n == 0:
+        command = """
+        SELECT rowid, title
+        FROM Recipes_Search
+        WHERE Recipes_Search MATCH ?
+        """
+        params = [fts5_query]
+    else:
+        lst = '(' + ','.join(['?']*n) + ')'
+        command = f"""
+        SELECT R.rowid, title
+        FROM Recipes_Search R JOIN Recipe_Categories C ON R.rowid = recipe_id
+        WHERE Recipes_Search MATCH ? AND C.category_id in {lst}
+        GROUP BY R.rowid
+        HAVING COUNT(DISTINCT C.category_id) = ?
+        """
+        params = [fts5_query] + categories + [n]
     return db.query(command, params)
