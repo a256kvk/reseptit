@@ -5,8 +5,8 @@
 {% block content %}
   <article>
     <h1>{{recipe.title}}</h1>
-    <b>Luokittelut:</b>
-    {%for category in categories%}
+    <p>Luokittelut: </p>
+	{% for category in categories %}
     {{category.name}}
     {%endfor%}
     <h2>Kuvaus</h2>
@@ -22,40 +22,44 @@
     {% endif %}
   </article>
 
-  <h2>Arvostelut</h2>
-  {% if session.user_id %}
-  <form action="/review" method="post">
-    <input type="hidden" name="csrf_token" value="{{session.csrf_token}}">
-    <input type="hidden" name="recipe_id" value="{{recipe.id}}">
-    <h3>
-        {% if user_review %}
-        Muokkaa arvostelua
-        {% else %}
-        Lisää arvostelu
-        {% endif %}
-    </h3>
-    <fieldset class="review-stars">
-      <legend>Tähdet</legend>
-      {% for i in range(1,6) %}
-      <label>{{i}}<input type="radio" name="rating" value="{{i}}" {% if i==(user_review.rating if user_review.rating else 3) %} checked {% endif %}></label>
-      {% endfor %}
-    </fieldset>
-    <p>
-      Kommentti <br>
-      <textarea type="content" name="content">{{user_review.content}}</textarea>
-    </p>
-    <input type="submit" value="Julkaise arvostelu">
-  </form>
-  {% else %}
-  <p>Voit lisätä kommentoida vain jos olet <a href="/login">kirjautunut sisään</a></p>
-  {% endif %}
+  <div class="reviews">
+    <h2>Arvostelut</h2>
+    {% if session.user_id %}
+    <form action="/review" method="post">
+      <input type="hidden" name="csrf_token" value="{{session.csrf_token}}">
+      <input type="hidden" name="recipe_id" value="{{recipe.id}}">
+      <h3>
+          {% if user_review %}
+          Muokkaa arvostelua
+          {% else %}
+          Lisää arvostelu
+          {% endif %}
+      </h3>
+      <fieldset class="review-stars">
+        <legend>Tähdet</legend>
+        {% for i in range(5,0,-1) %}
+        <input type="radio" id="rating-{{i}}" name="rating" value="{{i}}"
+            {% if i==(user_review.rating if user_review.rating else 3) %} checked {% endif %}>
+        <label for="rating-{{i}}">&starf;<sub>{{i}}</sub></label>
+        {% endfor %}
+      </fieldset>
+      <p>
+        Kommentti <br>
+        <textarea type="content" name="content">{{user_review.content}}</textarea>
+      </p>
+      <input type="submit" value="Julkaise arvostelu">
+    </form>
+    {% else %}
+    <p>Voit lisätä arvosteluja vain jos olet <a href="/login">kirjautunut sisään</a></p>
+    {% endif %}
 
-  {% for review in reviews %}
-  <article>
-      <h3>Käyttäjän {{review.username}} arvostelu</h3>
-      <p> Tähdet: {{review.rating}} </p>
-      <p class="review-content">{{review.content}}</p>
-  </article>
-  {% endfor %}
+    {% for review in reviews %}
+    <article>
+        <h3>Käyttäjän {{review.username}} arvostelu</h3>
+        <p> Tähdet: {{review.rating}} </p>
+        <p class="review-content">{{review.content}}</p>
+    </article>
+    {% endfor %}
+  </div>
 
 {% endblock %}

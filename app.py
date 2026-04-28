@@ -107,12 +107,14 @@ def login():
 
         res = queries.get_login_info(username)
         if res is None:
-            return flash("Käyttäjää ei ole olemassa", "error")
+            flash("Käyttäjää ei ole olemassa", "error")
+            return redirect("/login")
 
         password_hash = res["password_hash"]
 
         if not check_password_hash(password_hash, password):
-            return flash("Väärä salasana", "error")
+            flash("Väärä salasana", "error")
+            return redirect("/login");
 
         user_id = res["id"]
         session["username"] = username

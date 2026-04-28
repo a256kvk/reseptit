@@ -3,7 +3,7 @@
 {% block title %}Käyttäjä {{user.username}}{% endblock %}
 
 {% block content %}
-  <div>
+  <article>
     <h1>Käyttäjä {{user.username}}</h1>
     <h2>Tilastot</h2>
     <table>
@@ -25,5 +25,5 @@
       <li><a href="/recipe/{{recipe.id}}">{{recipe.title}}</a></li>
       {%endfor%}
     </ul>
-  </div>
+  </article>
 {% endblock %}
