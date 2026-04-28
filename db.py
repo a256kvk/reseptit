@@ -15,10 +15,14 @@ def execute(sql, params=None):
     if params is None:
         params = []
     con = get_connection()
-    result = con.execute(sql, params)
-    con.commit()
-    g.last_insert_id = result.lastrowid
-    con.close()
+    try:
+        result = con.execute(sql, params)
+        con.commit()
+        g.last_insert_id = result.lastrowid
+    except Exception as e:
+        raise e
+    finally:
+        con.close()
 
 def last_insert_id():
     return g.last_insert_id
@@ -31,7 +35,6 @@ def get_cursor():
         yield cur
         con.commit()
     except Exception as e:
-        cur.close()
         raise e
     finally:
         cur.close()
@@ -41,6 +44,10 @@ def query(sql, params=None):
     if params is None:
         params = []
     con = get_connection()
-    result = con.execute(sql, params).fetchall()
-    con.close()
+    try:
+        result = con.execute(sql, params).fetchall()
+    except Exception as e:
+        raise e
+    finally:
+        con.close()
     return result
