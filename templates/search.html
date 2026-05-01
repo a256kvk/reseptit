@@ -3,18 +3,7 @@
 {% block title %}Reseptit{% endblock %}
 
 {% block content %}
-  <form action="/search?" method="get">
-    <p>
-      <input type="text" name="q" value="{{query}}">
-      <input type="submit" value="Hae">
-    </p>
-    {% for category in categories %}
-    <label>
-      {{category.name}}
-      <input type="checkbox" name="category" value="{{category.id}}" {% if category.id in current_categories %} checked {%endif%}>
-    </label><br>
-    {% endfor %}
-  </form>
+  {{ search_bar(True, user_id) }}
   {% if session.user_id %}
   <a href="/create">Luo resepti</a>
 
@@ -23,7 +12,11 @@
 
   {% endif %}
   <div>
+      {% if user_id is none %}
       <h1>Haun tulokset</h1>
+      {% else %}
+	  <h1>Haun tulokset käyttäjän <a href="/user/{{user_id}}">{{username}}</a> resepteistä</h1>
+      {% endif %}
       <ul>
       {% for recipe in recipes %}
       <li><a href="/recipe/{{recipe.id}}">{{recipe.title}}</a></li>

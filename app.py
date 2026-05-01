@@ -276,17 +276,23 @@ def remove(recipe_id):
 @app.route("/search")
 def search():
     query = request.args.get("q")
+    user_id = request.args.get("u")
+    if query is None:
+        query = ""
 
     categories = request.args.getlist("category")
 
-    if query is not None:
-        recipes = queries.search_recipes(query,categories)
+    if user_id is None:
+        recipes = queries.search_recipes(query, categories)
+        username = None
     else:
-        recipes = queries.get_recipes()
-        query = ""
+        user_id = int(user_id)
+        recipes = queries.search_user_recipes(user_id, query, categories)
+        username = queries.get_username(user_id)
 
     categories_set = {int(i) for i in categories}
 
     return render_template("search.html", recipes=recipes, query=query,
                            categories=queries.get_categories(),
-                           current_categories=categories_set)
+                           current_categories=categories_set, user_id=user_id,
+                           username=username)

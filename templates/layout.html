@@ -1,3 +1,23 @@
+{% macro search_bar(include_categories=False, user_id=none) %}
+<form action="/search?" method="get">
+  {% if user_id is not none %}
+  <input type="hidden" name="u" value="{{user_id}}">
+  {% endif %}
+  <p>
+    <input type="text" name="q" value="{{query}}">
+    <input type="submit" value="Hae">
+  </p>
+  {% if include_categories %}
+  {% for category in categories %}
+  <label>
+    {{category.name}}
+    <input type="checkbox" name="category" value="{{category.id}}" {% if category.id in current_categories %} checked {% endif %}>
+  </label><br>
+  {% endfor %}
+  {% endif %}
+</form>
+{% endmacro %}
+
 <!DOCTYPE html>
 <html>
 
@@ -23,7 +43,7 @@
   {% with messages = get_flashed_messages(with_categories=true) %}
   <ul class="flash-messages">
   {% for category,message in messages %}
-	<li class="flash-message {{category}}">{{message}}</li>
+    <li class="flash-message {{category}}">{{message}}</li>
   {% endfor %}
   </ul>
   {% endwith %}

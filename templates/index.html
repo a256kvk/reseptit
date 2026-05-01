@@ -3,12 +3,7 @@
 {% block title %}Reseptit{% endblock %}
 
 {% block content %}
-  <form action="/search?" method="get">
-    <p>
-      <input type="text" name="q">
-      <input type="submit" value="Hae">
-    </p>
-  </form>
+  {{ search_bar() }}
   <a href="/search">hae kategorioiden mukaan</a> <br>
 
   {% if session.user_id %}

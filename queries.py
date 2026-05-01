@@ -60,6 +60,12 @@ def update_recipe(title, description, ingredients, instructions, recipe_id,
         for category_id in categories:
             cur.execute(insert_categories_command, [recipe_id, category_id])
 
+def get_username(user_id):
+    res = db.query("SELECT username FROM Users WHERE id = ?", [user_id])
+    if len(res) != 1:
+        return None
+    return res[0]["username"]
+
 def get_user_statistics(user_id):
     command = """
     SELECT id, username,
@@ -75,11 +81,6 @@ def get_user_statistics(user_id):
     if len(res) != 1:
         return None
     return res[0]
-
-def get_user_recipes(user_id):
-    command = "SELECT id, title FROM Recipes WHERE user_id = ?"
-    recipes = db.query(command, [user_id])
-    return recipes
 
 def get_categories():
     command = "SELECT id, name FROM Categories"
@@ -174,7 +175,7 @@ def search_recipes(query, categories):
     if fts5_query == '':
         return get_recipes_categories(categories)
 
-    if n == 0:
+    if not categories:
         command = """
         SELECT rowid, title
         FROM Recipes_Search
@@ -191,4 +192,56 @@ def search_recipes(query, categories):
         HAVING COUNT(DISTINCT C.category_id) = ?
         """
         params = [fts5_query] + categories + [n]
+    return db.query(command, params)
+
+def get_user_recipes(user_id, categories=[]):
+    n = len(categories)
+    if not categories:
+        command = """
+        SELECT id, title
+        FROM Recipes
+        WHERE user_id = ?
+        """
+        params = [user_id]
+    else:
+        lst = '(' + ','.join(['?']*n) + ')'
+        command = f"""
+        SELECT R.id, title
+        FROM Recipes R JOIN Recipe_Categories C ON R.id = recipe_id
+        WHERE C.category_id in {lst} AND user_id = ?
+        GROUP BY R.id
+        HAVING COUNT(DISTINCT C.category_id) = ?
+        """
+        params = categories + [user_id, n]
+    return db.query(command, params)
+    command = "SELECT id, title FROM Recipes WHERE user_id = ?"
+    recipes = db.query(command, [user_id])
+    return recipes
+
+def search_user_recipes(user_id, query, categories):
+    n = len(categories)
+    fts5_query = create_fts5_query(query)
+
+    if fts5_query == '':
+        return get_user_recipes(user_id, categories)
+
+    if not categories:
+        command = """
+        SELECT R.rowid, R.title
+        FROM Recipes_Search R JOIN Recipes S ON S.id = R.rowid
+        WHERE S.user_id = ? AND Recipes_Search MATCH ?
+        """
+        params = [user_id, fts5_query]
+    else:
+        lst = '(' + ','.join(['?']*n) + ')'
+        command = f"""
+        SELECT R.rowid, R.title
+        FROM Recipes_Search R JOIN Recipe_Categories C ON R.rowid = recipe_id
+            JOIN Recipes S ON S.id = R.rowid
+        WHERE S.user_id = ? AND Recipes_Search MATCH ?
+            AND C.category_id in {lst}
+        GROUP BY R.rowid
+        HAVING COUNT(DISTINCT C.category_id) = ?
+        """
+        params = [user_id, fts5_query] + categories + [n]
     return db.query(command, params)

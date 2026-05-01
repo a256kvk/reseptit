@@ -20,6 +20,7 @@
       </tbody>
     </table>
     <h2>Reseptit</h2>
+	{{ search_bar(False, user.id) }}
     <ul>
       {%for recipe in recipes%}
       <li><a href="/recipe/{{recipe.id}}">{{recipe.title}}</a></li>
