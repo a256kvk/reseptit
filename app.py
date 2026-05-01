@@ -64,7 +64,7 @@ def register():
                                username_maxlength=USERNAME_MAXLENGTH,
                                password_minlength=PASSWORD_MINLENGTH)
     if request.method == "POST":
-        username = request.form["username"]
+        username = request.form["username"].lower()
         if len(username) < USERNAME_MINLENGTH:
             flash("liian lyhyt käyttäjänimi", "error")
             return redirect("/register")
@@ -74,7 +74,6 @@ def register():
         if not re.fullmatch(USERNAME_REGEX, username):
             flash("VÄÄRÄNLAINEN KÄYTTÄJÄNIMI", "error")
             return redirect("/register")
-        password1 = request.form["username"]
         password1 = request.form["password1"]
         password2 = request.form["password2"]
         if password1 != password2:
@@ -102,7 +101,7 @@ def login():
     if request.method == "GET":
         return render_template("login.html", username_regex=USERNAME_REGEX)
     if request.method == "POST":
-        username = request.form["username"]
+        username = request.form["username"].lower()
         password = request.form["password"]
 
         res = queries.get_login_info(username)
