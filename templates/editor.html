@@ -3,30 +3,30 @@
 {% block title %}{{title}}{% endblock %}
 
 {% block content %}
-    <h1>{{title}}</h1>
-    <form action="{{post_url}}" method="post">
-    <input type="hidden" name="csrf_token" value="{{session.csrf_token}}">
-    <div>
-      <label for="title">Otsikko</label><br>
-      <input type="text" name="title" minlength="{{title_minlength}}" maxlength="{{title_maxlength}}" value="{{recipe.title}}" required>
-    </div>
-    <div>
-      <label for="description">Kuvaus</label> <br>
-      <textarea type="content" name="description" maxlength="{{description_maxlength}}">{{recipe.description}}</textarea>
-    </div>
-    <div>
-      <label for="ingredients">Ainesosat</label> <br>
-      <textarea type="content" name="ingredients" maxlength="{{ingredients_maxlength}}">{{recipe.ingredients}}</textarea>
-    </div>
-    <div>
-      <label for="instructions">Ohjeet</label> <br>
-      <textarea type="content" name="instructions" maxlength="{{instructions_maxlength}}">{{recipe.instructions}}</textarea>
-    </div>
-    <p>{{instructions}}</p>
-    <h2>Luokittelut</h2>
-    {%for category in categories%}
-    <label>{{category.name}}<input type="checkbox" name="category" value="{{category.id}}" {% if category.id in current_categories %} checked {%endif%}></label><br>
-    {%endfor%}
-    <input type="submit" value="Julkaise muokkaukset">
-  </form>
+<h1>{{title}}</h1>
+<form class="editor" action="{{post_url}}" method="post">
+<input type="hidden" name="csrf_token" value="{{session.csrf_token}}">
+<div>
+  <label for="title">Otsikko</label><br>
+  <input class="editor-textinput" type="text" name="title" minlength="{{title_minlength}}" maxlength="{{title_maxlength}}" value="{{recipe.title}}" required>
+</div>
+<div>
+  <label for="description">Kuvaus</label> <br>
+  <textarea class="editor-textarea" type="content" name="description" maxlength="{{description_maxlength}}">{{recipe.description}}</textarea>
+</div>
+<div>
+  <label for="ingredients">Ainesosat</label> <br>
+  <textarea class="editor-textarea" rows="10" type="content" name="ingredients" maxlength="{{ingredients_maxlength}}">{{recipe.ingredients}}</textarea>
+</div>
+<div>
+  <label for="instructions">Ohjeet</label> <br>
+  <textarea class="editor-textarea" rows="20" type="content" name="instructions" maxlength="{{instructions_maxlength}}">{{recipe.instructions}}</textarea>
+</div>
+<p>{{instructions}}</p>
+<h2>Luokittelut</h2>
+{%for category in categories%}
+<label>{{category.name}}<input type="checkbox" name="category" value="{{category.id}}" {% if category.id in current_categories %} checked {%endif%}></label><br>
+{%endfor%}
+<input type="submit" value="Julkaise muokkaukset">
+</form>
 {% endblock %}

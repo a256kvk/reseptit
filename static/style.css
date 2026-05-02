@@ -32,6 +32,20 @@ textarea:focus, input:focus {
 	color: #cc241d;
 }
 
+.editor-textinput {
+	width: 100%;
+}
+
+.editor-textarea {
+	width: 100%;
+	min-height: 8em;
+}
+
+.review-textarea {
+	width: 30%;
+	min-height: 5em;
+}
+
 .review-content, .article-content {
 	white-space: pre-wrap;
 }
@@ -41,7 +55,7 @@ h1,h2 {
 	color: #fabd2f;
 }
 
-article {
+article, .editor {
 	align-self: center;
 	width: 60%;
 	margin-left: auto;
