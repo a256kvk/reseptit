@@ -124,11 +124,7 @@ def get_recipe_categories(recipe_id):
     return res
 
 def delete_recipe(recipe_id):
-    with db.get_cursor() as cur:
-        cur.execute("DELETE FROM Recipe_Categories WHERE recipe_id = ?",
-                    [recipe_id])
-        cur.execute("DELETE FROM Reviews WHERE recipe_id = ?", [recipe_id])
-        cur.execute("DELETE FROM Recipes WHERE id = ?", [recipe_id])
+    db.execute("DELETE FROM Recipes WHERE id = ?", [recipe_id])
 
 def create_user(username, password_hash):
     command = "INSERT INTO Users (username, password_hash) VALUES (?, ?)"

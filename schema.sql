@@ -16,7 +16,7 @@ CREATE TABLE Recipes (
 CREATE TABLE Reviews (
 	id INTEGER PRIMARY KEY,
 	user_id INTEGER REFERENCES Users,
-	recipe_id INTEGER REFERENCES Recipes,
+	recipe_id INTEGER REFERENCES Recipes ON DELETE CASCADE,
 	rating INTEGER CHECK (rating BETWEEN 1 AND 5),
 	content TEXT,
 	UNIQUE(recipe_id, user_id)
@@ -29,7 +29,7 @@ CREATE TABLE Categories (
 
 CREATE TABLE Recipe_Categories (
 	id INTEGER PRIMARY KEY,
-	recipe_id REFERENCES Recipes,
+	recipe_id REFERENCES Recipes ON DELETE CASCADE,
 	category_id REFERENCES Categories
 );
 
