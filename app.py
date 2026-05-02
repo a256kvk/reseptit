@@ -180,7 +180,7 @@ def edit(recipe_id):
         if recipe_data is None:
             abort(404)
 
-        if recipe_data["user_id"] != session["user_id"]:
+        if recipe_data["user_id"] != session.get("user_id"):
             abort(403)
 
         categories = queries.get_recipe_categories(recipe_id)
@@ -253,7 +253,7 @@ def remove(recipe_id):
         if recipe is None:
             abort(404)
 
-        if recipe_data["user_id"] != session["user_id"]:
+        if recipe_data["user_id"] != session.get("user_id"):
             abort(403)
 
         return render_template("remove.html", recipe=recipe_data)
@@ -263,7 +263,7 @@ def remove(recipe_id):
         check_csrf()
 
         recipe_data = queries.get_recipe(recipe_id)
-        if recipe_data["user_id"] != session["user_id"]:
+        if recipe_data["user_id"] != session.get("user_id"):
             abort(403)
 
         queries.delete_recipe(recipe_id)
@@ -278,7 +278,7 @@ def remove_review(review_id):
         if review_data is None:
             abort(404)
 
-        if review_data["user_id"] != session["user_id"]:
+        if review_data["user_id"] != session.get("user_id"):
             abort(403)
 
         return render_template("remove_review.html", review_id=review_id,
@@ -289,7 +289,7 @@ def remove_review(review_id):
         check_csrf()
 
         review_data = queries.get_review(review_id)
-        if review_data["user_id"] != session["user_id"]:
+        if review_data["user_id"] != session.get("user_id"):
             abort(403)
         recipe_id = review_data["recipe_id"]
 
