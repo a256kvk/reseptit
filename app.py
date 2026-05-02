@@ -315,9 +315,15 @@ def search():
     if query is None:
         query = ""
 
-    categories = request.args.getlist("category")
+    categories_set = {int(i) for i in request.args.getlist("category")}
+    categories = list(categories_set)
+    all_categories = queries.get_categories()
+    all_category_ids = {int(i["id"]) for i in all_categories}
+    invalid_categories = (
+        len(categories_set) > len(all_categories)
+        or not categories_set.issubset(all_category_ids)
+    )
 
-    categories = [int(i) for i in categories]
     after = request.args.get("after")
     if after is None:
         after = 0
@@ -325,12 +331,18 @@ def search():
         after = int(after)
 
     if user_id is None:
-        recipes = queries.search_recipes(query, categories, after)
+        if invalid_categories:
+            recipes = []
+        else:
+            recipes = queries.search_recipes(query, categories, after)
         username = None
     else:
         user_id = int(user_id)
-        recipes = queries.search_user_recipes(user_id, query, categories,
-                                              after)
+        if invalid_categories:
+            recipes = []
+        else:
+            recipes = queries.search_user_recipes(user_id, query, categories,
+                                                  after)
         username = queries.get_username(user_id)
 
     if len(recipes) > 0:
@@ -342,6 +354,6 @@ def search():
     new_args["after"] = last_id
 
     return render_template("search.html", recipes=recipes, query=query,
-                           categories=queries.get_categories(),
-                           current_categories=set(categories), user_id=user_id,
+                           categories=all_categories,
+                           current_categories=categories_set, user_id=user_id,
                            username=username, next_page_args=new_args)
