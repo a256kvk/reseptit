@@ -338,7 +338,7 @@ def search():
     else:
         last_id = 0
 
-    new_args = request.args.to_dict()
+    new_args = request.args.to_dict(flat=False)
     new_args["after"] = last_id
 
     return render_template("search.html", recipes=recipes, query=query,
