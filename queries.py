@@ -16,8 +16,9 @@ def get_recipe(recipe_id):
 
     return res[0]
 
-def get_recipes():
-    return db.query("SELECT id, title FROM Recipes")
+def get_recipes(after_id):
+    command = "SELECT id, title FROM Recipes WHERE id > ? LIMIT 100"
+    return db.query(command, [after_id])
 
 def create_recipe(user_id, title, description, ingredients, instructions,
                   categories):
@@ -154,77 +155,81 @@ def create_fts5_query(raw_input):
     fts5_query = " OR ".join(keyword_list)
     return fts5_query
 
-def get_recipes_categories(categories):
+def get_recipes_categories(categories, after_id):
     n = len(categories)
     if n == 0:
         command = """
         SELECT id, title
         FROM Recipes
+        WHERE id > ?
+        LIMIT 100
         """
-        params = []
+        params = [after_id]
     else:
         lst = "(" + ",".join(["?"]*n) + ")"
         command = f"""
-        SELECT R.id, title
+        SELECT R.id id, title
         FROM Recipes R JOIN Recipe_Categories C ON R.id = recipe_id
-        WHERE C.category_id in {lst}
+        WHERE C.category_id in {lst} AND R.id > ?
         GROUP BY R.id
         HAVING COUNT(DISTINCT C.category_id) = ?
+        LIMIT 100
         """
-        params = categories + [n]
+        params = categories + [after_id, n]
     return db.query(command, params)
 
-def search_recipes(query, categories):
+def search_recipes(query, categories, after_id):
     n = len(categories)
     fts5_query = create_fts5_query(query)
 
     if fts5_query == "":
-        return get_recipes_categories(categories)
+        return get_recipes_categories(categories, after_id)
 
     if not categories:
         command = """
-        SELECT rowid, title
+        SELECT rowid id, title
         FROM Recipes_Search
-        WHERE Recipes_Search MATCH ?
+        WHERE Recipes_Search MATCH ? AND rowid > ?
+        LIMIT 100
         """
-        params = [fts5_query]
+        params = [fts5_query, after_id]
     else:
         lst = "(" + ",".join(["?"]*n) + ")"
         command = f"""
-        SELECT R.rowid, title
+        SELECT R.rowid id, title
         FROM Recipes_Search R JOIN Recipe_Categories C ON R.rowid = recipe_id
-        WHERE Recipes_Search MATCH ? AND C.category_id in {lst}
+        WHERE Recipes_Search MATCH ? AND C.category_id in {lst} AND R.rowid > ?
         GROUP BY R.rowid
         HAVING COUNT(DISTINCT C.category_id) = ?
+        LIMIT 100
         """
-        params = [fts5_query] + categories + [n]
+        params = [fts5_query] + categories + [after_id, n]
     return db.query(command, params)
 
-def get_user_recipes(user_id, categories=[]):
+def get_user_recipes(user_id, categories=[], after_id=0):
     n = len(categories)
     if not categories:
         command = """
         SELECT id, title
         FROM Recipes
-        WHERE user_id = ?
+        WHERE user_id = ? AND id > ?
+        LIMIT 100
         """
-        params = [user_id]
+        params = [user_id, after_id]
     else:
         lst = "(" + ",".join(["?"]*n) + ")"
         command = f"""
-        SELECT R.id, title
+        SELECT R.id id, title
         FROM Recipes R JOIN Recipe_Categories C ON R.id = recipe_id
-        WHERE C.category_id in {lst} AND user_id = ?
+        WHERE C.category_id in {lst} AND user_id = ? AND R.id > ?
         GROUP BY R.id
         HAVING COUNT(DISTINCT C.category_id) = ?
+        LIMIT 100
         """
-        params = categories + [user_id, n]
+        params = categories + [user_id, after_id, n]
     return db.query(command, params)
-    command = "SELECT id, title FROM Recipes WHERE user_id = ?"
-    recipes = db.query(command, [user_id])
-    return recipes
 
-def search_user_recipes(user_id, query, categories):
+def search_user_recipes(user_id, query, categories, after_id):
     n = len(categories)
     fts5_query = create_fts5_query(query)
 
@@ -233,21 +238,23 @@ def search_user_recipes(user_id, query, categories):
 
     if not categories:
         command = """
-        SELECT R.rowid, R.title
+        SELECT R.rowid id, R.title
         FROM Recipes_Search R JOIN Recipes S ON S.id = R.rowid
-        WHERE S.user_id = ? AND Recipes_Search MATCH ?
+        WHERE S.user_id = ? AND R.rowid > ? AND Recipes_Search MATCH ?
+        LIMIT 100
         """
-        params = [user_id, fts5_query]
+        params = [user_id, after_id, fts5_query]
     else:
         lst = "(" + ",".join(["?"]*n) + ")"
         command = f"""
-        SELECT R.rowid, R.title
+        SELECT R.rowid id, R.title
         FROM Recipes_Search R JOIN Recipe_Categories C ON R.rowid = recipe_id
             JOIN Recipes S ON S.id = R.rowid
-        WHERE S.user_id = ? AND Recipes_Search MATCH ?
+        WHERE S.user_id = ? AND R.rowid > ? AND Recipes_Search MATCH ?
             AND C.category_id in {lst}
         GROUP BY R.rowid
         HAVING COUNT(DISTINCT C.category_id) = ?
+        LIMIT 100
         """
-        params = [user_id, fts5_query] + categories + [n]
+        params = [user_id, after_id, fts5_query] + categories + [n]
     return db.query(command, params)

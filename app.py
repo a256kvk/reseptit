@@ -18,9 +18,20 @@ def check_csrf():
 
 @app.route("/")
 def index():
-    recipes = queries.get_recipes()
+    after = request.args.get("after")
+    if after is None:
+        after = 0
+    else:
+        after = int(after)
+    print("after: ",after)
+    recipes = queries.get_recipes(after)
+    if len(recipes) > 0:
+        last_id = int(recipes[-1]["id"])
+    else:
+        last_id = 0
     return render_template("index.html", recipes=recipes,
-                           categories=queries.get_categories())
+                           categories=queries.get_categories(),
+                           last_id=last_id)
 
 @app.route("/user/<int:user_id>")
 def user(user_id):
@@ -306,17 +317,32 @@ def search():
 
     categories = request.args.getlist("category")
 
+    after = request.args.get("after")
+    if after is None:
+        after = 0
+    else:
+        after = int(after)
+
     if user_id is None:
-        recipes = queries.search_recipes(query, categories)
+        recipes = queries.search_recipes(query, categories, after)
         username = None
     else:
         user_id = int(user_id)
-        recipes = queries.search_user_recipes(user_id, query, categories)
+        recipes = queries.search_user_recipes(user_id, query, categories,
+                                              after)
         username = queries.get_username(user_id)
 
     categories_set = {int(i) for i in categories}
 
+    if len(recipes) > 0:
+        last_id = int(recipes[-1]["id"])
+    else:
+        last_id = 0
+
+    new_args = request.args.to_dict()
+    new_args["after"] = last_id
+
     return render_template("search.html", recipes=recipes, query=query,
                            categories=queries.get_categories(),
                            current_categories=categories_set, user_id=user_id,
-                           username=username)
+                           username=username, next_page_args=new_args)

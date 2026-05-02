@@ -21,6 +21,7 @@
       {% for recipe in recipes %}
       <li><a href="/recipe/{{recipe.id}}">{{recipe.title}}</a></li>
       {% endfor %}
+	  <a href="{{url_for('search', **next_page_args)}}">seuraava sivu</a>
       </ul>
   </div>
 {% endblock %}
