@@ -31,11 +31,11 @@ CREATE TABLE Recipe_Categories (
 	id INTEGER PRIMARY KEY,
 	recipe_id REFERENCES Recipes ON DELETE CASCADE,
 	category_id REFERENCES Categories,
-	UNIQUE(recipe_id,category_id) -- This also creates index (recipe_id,category_id)
+	UNIQUE(category_id,recipe_id) -- This also creates index (category_id,recipe_id)
 );
 
 CREATE INDEX recipes_user_id_index ON Recipes(user_id);
-CREATE INDEX recipe_categories_category_id ON Recipe_Categories(category_id);
+CREATE INDEX recipe_categories_category_id ON Recipe_Categories(recipe_id);
 
 CREATE VIRTUAL TABLE Recipes_Search USING fts5(title,description,ingredients,instructions);
 
