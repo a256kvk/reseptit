@@ -19,7 +19,7 @@ CREATE TABLE Reviews (
 	recipe_id INTEGER REFERENCES Recipes ON DELETE CASCADE,
 	rating INTEGER CHECK (rating BETWEEN 1 AND 5),
 	content TEXT,
-	UNIQUE(recipe_id, user_id)
+	UNIQUE(recipe_id, user_id) -- This also creates index (recipe_id, user_id)
 );
 
 CREATE TABLE Categories (
@@ -30,8 +30,12 @@ CREATE TABLE Categories (
 CREATE TABLE Recipe_Categories (
 	id INTEGER PRIMARY KEY,
 	recipe_id REFERENCES Recipes ON DELETE CASCADE,
-	category_id REFERENCES Categories
+	category_id REFERENCES Categories,
+	UNIQUE(recipe_id,category_id) -- This also creates index (recipe_id,category_id)
 );
+
+CREATE INDEX recipes_user_id_index ON Recipes(user_id);
+CREATE INDEX recipe_categories_category_id ON Recipe_Categories(category_id);
 
 CREATE VIRTUAL TABLE Recipes_Search USING fts5(title,description,ingredients,instructions);
 
