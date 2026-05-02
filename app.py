@@ -317,6 +317,7 @@ def search():
 
     categories = request.args.getlist("category")
 
+    categories = [int(i) for i in categories]
     after = request.args.get("after")
     if after is None:
         after = 0
@@ -332,8 +333,6 @@ def search():
                                               after)
         username = queries.get_username(user_id)
 
-    categories_set = {int(i) for i in categories}
-
     if len(recipes) > 0:
         last_id = int(recipes[-1]["id"])
     else:
@@ -344,5 +343,5 @@ def search():
 
     return render_template("search.html", recipes=recipes, query=query,
                            categories=queries.get_categories(),
-                           current_categories=categories_set, user_id=user_id,
+                           current_categories=set(categories), user_id=user_id,
                            username=username, next_page_args=new_args)
