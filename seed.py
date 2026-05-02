@@ -1,5 +1,5 @@
 from os import system
-from random import choice, choices, randint
+from random import choice, choices, randint, sample
 from string import ascii_lowercase
 
 import db
@@ -14,6 +14,9 @@ def randomwords(n=5):
         l.append(randomword(randint(5,12)))
     return l
 
+categories_queries = db.query("SELECT id FROM Categories")
+categories = [i[0] for i in categories_queries]
+
 system("rm database.db")
 system("sqlite3 database.db <schema.sql")
 system("sqlite3 database.db <add_categories.sql")
@@ -27,6 +30,10 @@ create_recipe_command = """
 INSERT INTO Recipes (user_id, title, description, ingredients,
                      instructions)
 VALUES (?, ?, ?, ?, ?)
+"""
+
+insert_categories_command = """
+INSERT INTO Recipe_Categories (recipe_id, category_id) VALUES (?, ?)
 """
 
 food_words = ["suomi", "banaani", "halloumi", "pata", "italia", "isoäidin"]
@@ -60,4 +67,11 @@ with db.get_cursor() as cur:
 
         params = [user_id, title, description, ingredients, instructions]
 
-        cur.execute(create_recipe_command,params)
+        res = cur.execute(create_recipe_command,params)
+        recipe_id = res.lastrowid
+
+        cats = sample(categories, k=randint(0,5))
+
+        for category_id in cats:
+            cur.execute(insert_categories_command, [recipe_id, category_id])
+
