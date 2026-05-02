@@ -157,7 +157,7 @@ def get_recipes_categories(categories):
         """
         params = []
     else:
-        lst = '(' + ','.join(['?']*n) + ')'
+        lst = "(" + ",".join(["?"]*n) + ")"
         command = f"""
         SELECT R.id, title
         FROM Recipes R JOIN Recipe_Categories C ON R.id = recipe_id
@@ -172,7 +172,7 @@ def search_recipes(query, categories):
     n = len(categories)
     fts5_query = create_fts5_query(query)
 
-    if fts5_query == '':
+    if fts5_query == "":
         return get_recipes_categories(categories)
 
     if not categories:
@@ -183,7 +183,7 @@ def search_recipes(query, categories):
         """
         params = [fts5_query]
     else:
-        lst = '(' + ','.join(['?']*n) + ')'
+        lst = "(" + ",".join(["?"]*n) + ")"
         command = f"""
         SELECT R.rowid, title
         FROM Recipes_Search R JOIN Recipe_Categories C ON R.rowid = recipe_id
@@ -204,7 +204,7 @@ def get_user_recipes(user_id, categories=[]):
         """
         params = [user_id]
     else:
-        lst = '(' + ','.join(['?']*n) + ')'
+        lst = "(" + ",".join(["?"]*n) + ")"
         command = f"""
         SELECT R.id, title
         FROM Recipes R JOIN Recipe_Categories C ON R.id = recipe_id
@@ -222,7 +222,7 @@ def search_user_recipes(user_id, query, categories):
     n = len(categories)
     fts5_query = create_fts5_query(query)
 
-    if fts5_query == '':
+    if fts5_query == "":
         return get_user_recipes(user_id, categories)
 
     if not categories:
@@ -233,7 +233,7 @@ def search_user_recipes(user_id, query, categories):
         """
         params = [user_id, fts5_query]
     else:
-        lst = '(' + ','.join(['?']*n) + ')'
+        lst = "(" + ",".join(["?"]*n) + ")"
         command = f"""
         SELECT R.rowid, R.title
         FROM Recipes_Search R JOIN Recipe_Categories C ON R.rowid = recipe_id
