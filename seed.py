@@ -61,7 +61,7 @@ with db.get_cursor() as cur:
                                + choices(food_words, k=randint(0, 2))
                                + choices(ingredient_words, k=randint(0, 6)))
 
-        instructions = " ".join(randomwords(randint(0, 50))
+        instructions = " ".join(["lol"] + randomwords(randint(0, 50))
                                + choices(food_words, k=randint(0, 20))
                                + choices(ingredient_words, k=randint(0, 60)))
 
