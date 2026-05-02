@@ -6,7 +6,7 @@
   <article>
     <h1>{{recipe.title}}</h1>
     <p>Luokittelut: </p>
-	{% for category in categories %}
+    {% for category in categories %}
     {{category.name}}
     {%endfor%}
     <h2>Kuvaus</h2>
@@ -47,8 +47,15 @@
         Kommentti <br>
         <textarea type="content" name="content">{{user_review.content}}</textarea>
       </p>
+      {% if user_review %}
+      <input type="submit" value="Julkaise muokattu arvostelu">
+      {% else %}
       <input type="submit" value="Julkaise arvostelu">
+      {% endif %}
     </form>
+    {% if user_review %}
+    <a href="/remove_review/{{user_review.id}}">Poista arvostelu</a>
+    {% endif %}
     {% else %}
     <p>Voit lisätä arvosteluja vain jos olet <a href="/login">kirjautunut sisään</a></p>
     {% endif %}

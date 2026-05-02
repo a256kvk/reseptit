@@ -87,6 +87,13 @@ def get_categories():
     res = db.query(command)
     return res
 
+def get_review(review_id):
+    command = "SELECT user_id, recipe_id FROM Reviews WHERE id = ?"
+    review = db.query(command, [review_id])
+    if len(review) != 1:
+        return None
+    return review[0]
+
 def get_reviews(recipe_id):
     command = """
     SELECT username, user_id, rating, content
@@ -100,7 +107,7 @@ def get_user_review(recipe_id, user_id):
     if user_id is None:
         return None
     command = """
-    SELECT rating, content FROM Reviews WHERE recipe_id = ? AND user_id = ?
+    SELECT id, rating, content FROM Reviews WHERE recipe_id = ? AND user_id = ?
     """
     review = db.query(command, [recipe_id, user_id])
     if len(review) != 1:
@@ -125,6 +132,9 @@ def get_recipe_categories(recipe_id):
 
 def delete_recipe(recipe_id):
     db.execute("DELETE FROM Recipes WHERE id = ?", [recipe_id])
+
+def delete_review(review_id):
+    db.execute("DELETE FROM Reviews WHERE id = ?", [review_id])
 
 def create_user(username, password_hash):
     command = "INSERT INTO Users (username, password_hash) VALUES (?, ?)"

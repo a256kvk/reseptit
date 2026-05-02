@@ -245,7 +245,6 @@ def create_review():
     queries.create_review(user_id, recipe_id, rating, content)
     return redirect(f"/recipe/{recipe_id}")
 
-
 @app.route("/remove/<int:recipe_id>", methods=["GET", "POST"])
 def remove(recipe_id):
     if request.method == "GET":
@@ -271,6 +270,32 @@ def remove(recipe_id):
 
         return redirect("/")
 
+@app.route("/remove_review/<int:review_id>", methods=["GET", "POST"])
+def remove_review(review_id):
+    if request.method == "GET":
+        review_data = queries.get_review(review_id)
+
+        if review_data is None:
+            abort(404)
+
+        if review_data["user_id"] != session["user_id"]:
+            abort(403)
+
+        return render_template("remove_review.html", review_id=review_id,
+                               review=review_data)
+    if request.method == "POST":
+        if "continue" not in request.form:
+            return redirect(f"/recipe/{recipe_id}")
+        check_csrf()
+
+        review_data = queries.get_review(review_id)
+        if review_data["user_id"] != session["user_id"]:
+            abort(403)
+        recipe_id = review_data["recipe_id"]
+
+        queries.delete_review(review_id)
+
+        return redirect(f"/recipe/{recipe_id}")
 
 @app.route("/search")
 def search():

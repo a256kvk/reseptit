@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block title %}Poista arvostelu{% endblock %}
+
+{% block content %}
+  <form action="/remove_review/{{review_id}}" method="post">
+    <input type="hidden" name="csrf_token" value="{{session.csrf_token}}">
+    <p>Olet poistamassa arvostelua <br>
+    <input type="submit" name="continue" value="Poista arvostelu">
+    <input type="submit" name="cancel" value="Peruuta">
+    </p>
+  </form>
+{% endblock %}
