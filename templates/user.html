@@ -21,6 +21,7 @@
     </table>
     <h2>Reseptit</h2>
 	{{ search_bar(False, user.id) }}
+    <a href="/search?u={{user.id}}">hae kategorioiden mukaan</a> <br>
     <ul>
       {%for recipe in recipes%}
       <li><a href="/recipe/{{recipe.id}}">{{recipe.title}}</a></li>
