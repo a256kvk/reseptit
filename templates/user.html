@@ -27,5 +27,8 @@
       <li><a href="/recipe/{{recipe.id}}">{{recipe.title}}</a></li>
       {%endfor%}
     </ul>
+    {% if next_page_needed %}
+    <a href="/user/{{user.id}}?after={{last_id}}">seuraava sivu</a>
+    {% endif %}
   </article>
 {% endblock %}

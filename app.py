@@ -41,10 +41,14 @@ def index():
 @app.route("/user/<int:user_id>")
 def user(user_id):
     userdata = queries.get_user_statistics(user_id)
+    after = get_after()
     if userdata is None:
         abort(404)
-    recipes = queries.get_user_recipes(user_id)
-    return render_template("user.html", user=userdata, recipes=recipes)
+    recipes = queries.get_user_recipes(user_id,after_id=after)
+    last_id = get_page_last_id(recipes)
+    return render_template("user.html", user=userdata, recipes=recipes[:100],
+                           last_id=last_id,
+                           next_page_needed=len(recipes) > 100)
 
 @app.route("/recipe/<int:recipe_id>")
 def recipe(recipe_id):
