@@ -69,3 +69,6 @@ Muilla käyttäjillä on suunnilleen 10 reseptiä per käyttäjä, joilla on suu
 Reseptien hakeminen pelkällä hakusanalla tapahtuu melkein välittömästi hakusanasta riippumatta.
 Reseptien hakeminen pelkillä kategorioilla tapahtuu valittujen kategorioiden määrästä riippuen neljännessekuntista pariin sekuntiin.
 Kun hakee reseptiä hakusanalla ja kategorioilla, niin sivun lataamisen nopeus riippuu hakusanan yleisyydestä ja kategorioiden määrästä. Esimerkiksi yhden kategorian etsiminen hakusanalla, joka on jokaisessa reseptissä ("lol") menee noin sekunti. Hakiessa sanaa ("tuhat") joka on sadassa reseptissä ja vaikka olisi kolme kategoriaa, niin haku tapahtuu noin sekunnissa. Mutta esimerkiksi jos hakee sanaa, joka on kaikissa resepteissä ja seitsemää kategoriaa, niin sivu ei lataudu edes yhdessätoista minuutissa.
+
+## Pylint-raportti
+katso [pylint-report.md](pylint-report.md)
