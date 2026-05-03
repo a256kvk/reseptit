@@ -22,18 +22,21 @@ def get_after():
         return 0
     return int(after)
 
+def get_page_last_id(results):
+    if len(results) > 1:
+        last_id = int(results[-2]["id"])
+    else:
+        last_id = 0
+
 @app.route("/")
 def index():
     after = get_after()
     recipes = queries.get_recipes(after)
-    if len(recipes) > 1:
-        last_id = int(recipes[-2]["id"])
-    else:
-        last_id = 0
-    next_page_needed = len(recipes) > 100
+    last_id = get_page_last_id(recipes)
     return render_template("index.html", recipes=recipes[:100],
                            categories=queries.get_categories(),
-                           last_id=last_id, next_page_needed=next_page_needed)
+                           last_id=last_id,
+                           next_page_needed=len(recipes) > 100)
 
 @app.route("/user/<int:user_id>")
 def user(user_id):
@@ -53,13 +56,10 @@ def recipe(recipe_id):
     user_id = session.get("user_id")
     user_review = queries.get_user_review(recipe_id, user_id)
     reviews = queries.get_reviews(recipe_id, after)
-    if len(reviews) > 1:
-        last_id = int(reviews[-2]["id"])
-    else:
-        last_id = 0
     return render_template("recipe.html", recipe=recipe_data,
                            categories=categories, reviews=reviews,
-                           user_review=user_review, last_id=last_id,
+                           user_review=user_review,
+                           last_id=get_page_last_id(reviews),
                            next_page_needed=len(reviews)>100)
 
 USERNAME_MINLENGTH = 1
@@ -349,18 +349,11 @@ def search():
                                                   after)
         username = queries.get_username(user_id)
 
-    if len(recipes) > 1:
-        last_id = int(recipes[-2]["id"])
-    else:
-        last_id = 0
-
     new_args = request.args.to_dict(flat=False)
-    new_args["after"] = last_id
-
-    next_page_needed = len(recipes) > 100
+    new_args["after"] = get_page_last_id(recipes)
 
     return render_template("search.html", recipes=recipes[:100], query=query,
                            categories=all_categories,
                            current_categories=categories_set, user_id=user_id,
                            username=username, next_page_args=new_args,
-                           next_page_needed=next_page_needed)
+                           next_page_needed=len(recipes) > 100)
