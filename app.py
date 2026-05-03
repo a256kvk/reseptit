@@ -25,8 +25,7 @@ def get_after():
 def get_page_last_id(results):
     if len(results) > 1:
         return int(results[-2]["id"])
-    else:
-        return 0
+    return 0
 
 @app.route("/")
 def index():
@@ -79,6 +78,28 @@ INSTRUCTIONS_MAXLENGTH = 5000
 
 REVIEW_MAXLENGTH = 500
 
+def validate_username(username):
+    if len(username) < USERNAME_MINLENGTH:
+        flash("liian lyhyt käyttäjänimi", "error")
+        return False
+    if len(username) > USERNAME_MAXLENGTH:
+        flash("liian pitkä käyttäjänimi", "error")
+        return False
+    if not re.fullmatch(USERNAME_REGEX, username):
+        flash("VÄÄRÄNLAINEN KÄYTTÄJÄNIMI", "error")
+        return False
+    return True
+
+def validate_password(password1, password2):
+    if password1 != password2:
+        flash("SALASANOJEN TÄYTYY OLLA SAMAT", "error")
+        return False
+
+    if len(password1) < PASSWORD_MINLENGTH:
+        flash("liian lyhyt salasana", "error")
+        return False
+    return True
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
@@ -88,23 +109,12 @@ def register():
                                password_minlength=PASSWORD_MINLENGTH)
     if request.method == "POST":
         username = request.form["username"].lower()
-        if len(username) < USERNAME_MINLENGTH:
-            flash("liian lyhyt käyttäjänimi", "error")
-            return redirect("/register")
-        if len(username) > USERNAME_MAXLENGTH:
-            flash("liian pitkä käyttäjänimi", "error")
-            return redirect("/register")
-        if not re.fullmatch(USERNAME_REGEX, username):
-            flash("VÄÄRÄNLAINEN KÄYTTÄJÄNIMI", "error")
-            return redirect("/register")
         password1 = request.form["password1"]
         password2 = request.form["password2"]
-        if password1 != password2:
-            flash("SALASANOJEN TÄYTYY OLLA SAMAT", "error")
-            return redirect("/register")
 
-        if len(password1) < PASSWORD_MINLENGTH:
-            flash("liian lyhyt salasana", "error")
+        username_valid = validate_username(username)
+        password_valid = validate_password(password1, password2)
+        if not username_valid or not password_valid:
             return redirect("/register")
 
         password_hash = generate_password_hash(password1)
@@ -118,6 +128,18 @@ def register():
         flash("KÄYTTÄJÄTUNNUKSEN LUOMINEN ONNISTUI!", "info")
         return redirect("/")
 
+def verify_login(username, password):
+    res = queries.get_login_info(username)
+    if res is None:
+        flash("Käyttäjää ei ole olemassa", "error")
+        return None
+
+    password_hash = res["password_hash"]
+
+    if not check_password_hash(password_hash, password):
+        flash("Väärä salasana", "error")
+        return None
+    return res["id"]
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -127,18 +149,10 @@ def login():
         username = request.form["username"].lower()
         password = request.form["password"]
 
-        res = queries.get_login_info(username)
-        if res is None:
-            flash("Käyttäjää ei ole olemassa", "error")
+        user_id = verify_login(username, password)
+        if user_id is None:
             return redirect("/login")
 
-        password_hash = res["password_hash"]
-
-        if not check_password_hash(password_hash, password):
-            flash("Väärä salasana", "error")
-            return redirect("/login");
-
-        user_id = res["id"]
         session["username"] = username
         session["user_id"] = user_id
         session["csrf_token"] = secrets.token_hex(16)
@@ -151,6 +165,25 @@ def logout():
     del session["username"]
     del session["csrf_token"]
     return redirect("/")
+
+def validate_recipe(title, description, ingredients, instructions):
+    if len(title) < TITLE_MINLENGTH:
+        flash("liian lyhyt otsikko", "error")
+        return False
+    if len(title) > TITLE_MAXLENGTH:
+        flash("liian pitkä otsikko", "error")
+        return False
+    if len(description) > DESCRIPTION_MAXLENGTH:
+        flash("liian pitkä kuvaus", "error")
+        return False
+    if len(ingredients) > INGREDIENTS_MAXLENGTH:
+        flash("liian pitkä ainesosat", "error")
+        return False
+    if len(instructions) > INSTRUCTIONS_MAXLENGTH:
+        flash("liian pitkät ohjeet", "error")
+        return False
+    return True
+
 
 @app.route("/create", methods=["GET", "POST"])
 def create():
@@ -174,25 +207,12 @@ def create():
         instructions = request.form["instructions"]
         categories = request.form.getlist("category")
 
-        if len(title) < TITLE_MINLENGTH:
-            flash("liian lyhyt otsikko", "error")
-            return redirect("/create")
-        if len(title) > TITLE_MAXLENGTH:
-            flash("liian pitkä otsikko", "error")
-            return redirect("/create")
-        if len(description) > DESCRIPTION_MAXLENGTH:
-            flash("liian pitkä kuvaus", "error")
-            return redirect("/create")
-        if len(ingredients) > INGREDIENTS_MAXLENGTH:
-            flash("liian pitkä ainesosat", "error")
-            return redirect("/create")
-        if len(instructions) > INSTRUCTIONS_MAXLENGTH:
-            flash("liian pitkät ohjeet", "error")
+        if not validate_recipe(title, description, ingredients, instructions):
             return redirect("/create")
 
-        recipe_id=queries.create_recipe(user_id,title, description,
-                                        ingredients, instructions,
-                                        categories)
+        recipe_data = queries.Recipe(title, description, ingredients,
+                                     instructions, categories)
+        recipe_id=queries.create_recipe(user_id, recipe_data)
 
         return redirect(f"/recipe/{recipe_id}")
 
@@ -229,25 +249,14 @@ def edit(recipe_id):
         instructions = request.form["instructions"]
         categories = request.form.getlist("category")
 
-        if len(title) < TITLE_MINLENGTH:
-            flash("liian lyhyt otsikko", "error")
-            return redirect("/create")
-        if len(title) > TITLE_MAXLENGTH:
-            flash("liian pitkä otsikko", "error")
-            return redirect(f"/edit/{recipe_id}")
-        if len(description) > DESCRIPTION_MAXLENGTH:
-            flash("liian pitkä kuvaus", "error")
-            return redirect(f"/edit/{recipe_id}")
-        if len(ingredients) > INGREDIENTS_MAXLENGTH:
-            flash("liian pitkä ainesosat", "error")
-            return redirect(f"/edit/{recipe_id}")
-        if len(instructions) > INSTRUCTIONS_MAXLENGTH:
-            flash("liian pitkät ohjeet", "error")
+        if not validate_recipe(title, description, ingredients, instructions):
             return redirect(f"/edit/{recipe_id}")
 
         # checking privileges is done in update_recipe in the sql command
-        queries.update_recipe(title, description, ingredients, instructions,
-                              recipe_id, user_id, categories)
+
+        recipe_data = queries.Recipe(title, description, ingredients,
+                                     instructions, categories)
+        queries.update_recipe(recipe_id, user_id, recipe_data)
 
         return redirect(f"/recipe/{recipe_id}")
 

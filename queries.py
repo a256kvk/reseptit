@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import re
 
 import db
@@ -20,36 +21,43 @@ def get_recipes(after_id):
     command = "SELECT id, title FROM Recipes WHERE id > ? LIMIT 101"
     return db.query(command, [after_id])
 
-def create_recipe(user_id, title, description, ingredients, instructions,
-                  categories):
+@dataclass
+class Recipe:
+    title: str
+    description: str
+    ingredients: str
+    instructions: str
+    categories: list
+
+def create_recipe(user_id, recipe):
     with db.get_cursor() as cur:
         command = """
         INSERT INTO Recipes (user_id, title, description, ingredients,
                              instructions)
         VALUES (?, ?, ?, ?, ?)
         """
-        params = [user_id, title, description, ingredients, instructions]
+        params = [user_id, recipe.title, recipe.description,
+                  recipe.ingredients, recipe.instructions]
         res = cur.execute(command, params)
         recipe_id = res.lastrowid
 
         insert_categories_command = """
         INSERT INTO Recipe_Categories (recipe_id, category_id) VALUES (?, ?)
         """
-        for category_id in categories:
+        for category_id in recipe.categories:
             cur.execute(insert_categories_command, [recipe_id, category_id])
 
     return recipe_id
 
-def update_recipe(title, description, ingredients, instructions, recipe_id,
-                  user_id, categories):
+def update_recipe(recipe_id, user_id, recipe):
     with db.get_cursor() as cur:
         command = """
         UPDATE Recipes
         SET title = ?, description = ?, ingredients = ?, instructions = ?
         WHERE id = ? AND user_id = ?
         """
-        params = [title, description, ingredients, instructions, recipe_id,
-                  user_id]
+        params = [recipe.title, recipe.description, recipe.ingredients,
+                  recipe.instructions, recipe_id, user_id]
         cur.execute(command, params)
 
         delete_command = "DELETE FROM Recipe_Categories WHERE recipe_id = ?"
@@ -58,7 +66,7 @@ def update_recipe(title, description, ingredients, instructions, recipe_id,
         insert_categories_command = """
         INSERT INTO Recipe_Categories (recipe_id, category_id) VALUES (?, ?)
         """
-        for category_id in categories:
+        for category_id in recipe.categories:
             cur.execute(insert_categories_command, [recipe_id, category_id])
 
 def get_username(user_id):
@@ -207,7 +215,9 @@ def search_recipes(query, categories, after_id):
         params = [fts5_query] + categories + [after_id, n]
     return db.query(command, params)
 
-def get_user_recipes(user_id, categories=[], after_id=0):
+def get_user_recipes(user_id, categories=None, after_id=0):
+    if categories is None:
+        categories = []
     n = len(categories)
     if not categories:
         command = """
