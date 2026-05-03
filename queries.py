@@ -17,7 +17,7 @@ def get_recipe(recipe_id):
     return res[0]
 
 def get_recipes(after_id):
-    command = "SELECT id, title FROM Recipes WHERE id > ? LIMIT 100"
+    command = "SELECT id, title FROM Recipes WHERE id > ? LIMIT 101"
     return db.query(command, [after_id])
 
 def create_recipe(user_id, title, description, ingredients, instructions,
@@ -162,7 +162,7 @@ def get_recipes_categories(categories, after_id):
         SELECT id, title
         FROM Recipes
         WHERE id > ?
-        LIMIT 100
+        LIMIT 101
         """
         params = [after_id]
     else:
@@ -173,7 +173,7 @@ def get_recipes_categories(categories, after_id):
         WHERE C.category_id in {lst} AND R.id > ?
         GROUP BY R.id
         HAVING COUNT(DISTINCT C.category_id) = ?
-        LIMIT 100
+        LIMIT 101
         """
         params = categories + [after_id, n]
     return db.query(command, params)
@@ -190,7 +190,7 @@ def search_recipes(query, categories, after_id):
         SELECT rowid id, title
         FROM Recipes_Search
         WHERE Recipes_Search MATCH ? AND rowid > ?
-        LIMIT 100
+        LIMIT 101
         """
         params = [fts5_query, after_id]
     else:
@@ -201,7 +201,7 @@ def search_recipes(query, categories, after_id):
         WHERE Recipes_Search MATCH ? AND C.category_id in {lst} AND R.rowid > ?
         GROUP BY R.rowid
         HAVING COUNT(DISTINCT C.category_id) = ?
-        LIMIT 100
+        LIMIT 101
         """
         params = [fts5_query] + categories + [after_id, n]
     return db.query(command, params)
@@ -213,7 +213,7 @@ def get_user_recipes(user_id, categories=[], after_id=0):
         SELECT id, title
         FROM Recipes
         WHERE user_id = ? AND id > ?
-        LIMIT 100
+        LIMIT 101
         """
         params = [user_id, after_id]
     else:
@@ -224,7 +224,7 @@ def get_user_recipes(user_id, categories=[], after_id=0):
         WHERE C.category_id in {lst} AND user_id = ? AND R.id > ?
         GROUP BY R.id
         HAVING COUNT(DISTINCT C.category_id) = ?
-        LIMIT 100
+        LIMIT 101
         """
         params = categories + [user_id, after_id, n]
     return db.query(command, params)
@@ -241,7 +241,7 @@ def search_user_recipes(user_id, query, categories, after_id):
         SELECT R.rowid id, R.title
         FROM Recipes_Search R JOIN Recipes S ON S.id = R.rowid
         WHERE S.user_id = ? AND R.rowid > ? AND Recipes_Search MATCH ?
-        LIMIT 100
+        LIMIT 101
         """
         params = [user_id, after_id, fts5_query]
     else:
@@ -254,7 +254,7 @@ def search_user_recipes(user_id, query, categories, after_id):
             AND C.category_id in {lst}
         GROUP BY R.rowid
         HAVING COUNT(DISTINCT C.category_id) = ?
-        LIMIT 100
+        LIMIT 101
         """
         params = [user_id, after_id, fts5_query] + categories + [n]
     return db.query(command, params)

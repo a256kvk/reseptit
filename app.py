@@ -25,13 +25,14 @@ def index():
         after = int(after)
     print("after: ",after)
     recipes = queries.get_recipes(after)
-    if len(recipes) > 0:
-        last_id = int(recipes[-1]["id"])
+    if len(recipes) > 1:
+        last_id = int(recipes[-2]["id"])
     else:
         last_id = 0
-    return render_template("index.html", recipes=recipes,
+    next_page_needed = len(recipes) > 100
+    return render_template("index.html", recipes=recipes[:100],
                            categories=queries.get_categories(),
-                           last_id=last_id)
+                           last_id=last_id, next_page_needed=next_page_needed)
 
 @app.route("/user/<int:user_id>")
 def user(user_id):
@@ -345,15 +346,18 @@ def search():
                                                   after)
         username = queries.get_username(user_id)
 
-    if len(recipes) > 0:
-        last_id = int(recipes[-1]["id"])
+    if len(recipes) > 1:
+        last_id = int(recipes[-2]["id"])
     else:
         last_id = 0
 
     new_args = request.args.to_dict(flat=False)
     new_args["after"] = last_id
 
-    return render_template("search.html", recipes=recipes, query=query,
+    next_page_needed = len(recipes) > 100
+
+    return render_template("search.html", recipes=recipes[:100], query=query,
                            categories=all_categories,
                            current_categories=categories_set, user_id=user_id,
-                           username=username, next_page_args=new_args)
+                           username=username, next_page_args=new_args,
+                           next_page_needed=next_page_needed)

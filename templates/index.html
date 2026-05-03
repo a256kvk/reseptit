@@ -20,5 +20,8 @@
       {%endfor%}
       </ul>
   </div>
+
+  {% if next_page_needed %}
   <a href="/?after={{last_id}}">seuraava sivu</a>
+  {% endif %}
 {% endblock %}

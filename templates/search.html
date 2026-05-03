@@ -15,13 +15,15 @@
       {% if user_id is none %}
       <h1>Haun tulokset</h1>
       {% else %}
-	  <h1>Haun tulokset käyttäjän <a href="/user/{{user_id}}">{{username}}</a> resepteistä</h1>
+      <h1>Haun tulokset käyttäjän <a href="/user/{{user_id}}">{{username}}</a> resepteistä</h1>
       {% endif %}
       <ul>
       {% for recipe in recipes %}
       <li><a href="/recipe/{{recipe.id}}">{{recipe.title}}</a></li>
       {% endfor %}
-	  <a href="{{url_for('search', **next_page_args)}}">seuraava sivu</a>
+      {% if next_page_needed %}
+      <a href="{{url_for('search', **next_page_args)}}">seuraava sivu</a>
+      {% endif %}
       </ul>
   </div>
 {% endblock %}
