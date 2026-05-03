@@ -84,7 +84,7 @@ Nämä ilmoitukset ovat tyyliä missing-module-docstring tai missing-function-do
 app.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 app.py:15:0: C0116: Missing function or method docstring (missing-function-docstring)
 ```
-Olen päättänyt, etten käytä docstringejä funktioissa tässä projektissa.
+Olen päättänyt, etten käytä docstringejä tässä projektissa.
 
 ## Mahdolliset puuttuvat palautusarvot
 
@@ -96,7 +96,7 @@ app.py:220:0: R1710: Either all return statements in a function should return an
 app.py:282:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
 app.py:307:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
 ```
-Näissä kaikissa kohdissa on funktio, joka on tehty @app.route dekoraattorilla käyttäen `methods=["GET", "POST"]` ja lisäksi funktioissa on haarat molemmille vaihtoehdoille, joten ei ole mahdollista, että funktio ei menisi jompaankumpaan haaraan joka palauttaa.
+Näissä kaikissa kohdissa on funktio, joka on tehty @app.route dekoraattorilla käyttäen `methods=["GET", "POST"]` ja lisäksi funktioissa on haarat molemmille vaihtoehdoille, joten ei ole mahdollista, että funktio ei menisi jompaankumpaan haaraan joka palauttaa ja täten olisi palauttamatta.
 ```
 @app.route("/jotain", methods=["GET", "POST"])
 def joku()
