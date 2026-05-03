@@ -2,7 +2,6 @@ from random import choice, choices, randint, sample
 from string import ascii_lowercase
 
 import db
-#import queries
 
 def randomword(length=5):
     return "".join(choices(ascii_lowercase, k=length))
@@ -18,7 +17,6 @@ categories = [i[0] for i in categories_queries]
 
 user_count = 10**4
 recipe_count = 10**5
-comment_count_big = 10**4
 
 create_user_command = "INSERT INTO Users (username, password_hash) VALUES (?, ?)"
 
@@ -48,7 +46,12 @@ with db.get_cursor() as cur:
         cur.execute(create_user_command, [username, password])
 
     for i in range(1, recipe_count+1):
-        user_id = randint(1, user_count)
+        if i<=1000:
+            user_id = 1
+        elif i<=2000:
+            user_id = 2
+        else:
+            user_id = randint(1, user_count)
 
         title = " ".join([choice(food_words), randomword(),
                           choice(ingredient_words)])
@@ -56,6 +59,15 @@ with db.get_cursor() as cur:
         description = " ".join(randomwords(randint(1, 10))
                                + choices(food_words, k=5)
                                + choices(ingredient_words, k=5))
+
+        if i%1000==0:
+            description += " tuhat"
+
+        if i%100==0:
+            description += " sata"
+
+        if i%10==0:
+            description += " kymmenen"
 
         ingredients = ", ".join(randomwords(randint(0, 1))
                                + choices(food_words, k=randint(0, 2))
@@ -75,10 +87,38 @@ with db.get_cursor() as cur:
         for category_id in cats:
             cur.execute(insert_categories_command, [recipe_id, category_id])
 
-    for i in range(1, comment_count_big+1):
-        user_id = randint(1,user_count)
+    for i in range(1, user_count+1):
+        user_id = i
         rating = randint(1,5)
         content = " ".join(["kommentti"] + randomwords(randint(0, 50))
                   + choices(food_words, k=randint(0, 20))
                   + choices(ingredient_words, k=randint(0, 60)))
         cur.execute(create_review_command, [user_id, 1, rating, content])
+
+    for i in range(1, 10**6+1):
+        user_id = randint(1,user_count)
+        recipe_id = randint(1,1000)
+        rating = randint(1,5)
+        content = " ".join(["kommentti"] + randomwords(randint(0, 50))
+                  + choices(food_words, k=randint(0, 20))
+                  + choices(ingredient_words, k=randint(0, 60)))
+        cur.execute(create_review_command, [user_id, recipe_id, rating, content])
+
+
+    for i in range(1, 10**6+1):
+        user_id = randint(1,user_count)
+        recipe_id = randint(1,recipe_count)
+        rating = randint(1,5)
+        content = " ".join(["kommentti"] + randomwords(randint(0, 50))
+                  + choices(food_words, k=randint(0, 20))
+                  + choices(ingredient_words, k=randint(0, 60)))
+        cur.execute(create_review_command, [user_id, recipe_id, rating, content])
+
+    for i in range(1, 10**5):
+        user_id = randint(1,user_count)
+        recipe_id = randint(1001,2000)
+        rating = randint(1,5)
+        content = " ".join(["kommentti"] + randomwords(randint(0, 50))
+                  + choices(food_words, k=randint(0, 20))
+                  + choices(ingredient_words, k=randint(0, 60)))
+        cur.execute(create_review_command, [user_id, recipe_id, rating, content])
