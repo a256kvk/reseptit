@@ -97,7 +97,7 @@ def get_review(review_id):
 
 def get_reviews(recipe_id, after_id):
     command = """
-    SELECT username, user_id, rating, content
+    SELECT R.id id, username, user_id, rating, content
     FROM Reviews R JOIN Users U ON U.id = R.user_id
     WHERE recipe_id = ? AND R.id > ?
     LIMIT 101

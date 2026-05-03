@@ -68,7 +68,7 @@
     </article>
     {% endfor %}
     {% if next_page_needed %}
-    <a href="/?after={{last_id}}">seuraava sivu</a>
+    <a href="/recipe/{{recipe.id}}?after={{last_id}}">seuraava sivu</a>
     {% endif %}
   </div>
 
