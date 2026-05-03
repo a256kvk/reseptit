@@ -23,6 +23,7 @@ system("sqlite3 database.db <add_categories.sql")
 
 user_count = 10**4
 recipe_count = 10**5
+comment_count_big = 10**4
 
 create_user_command = "INSERT INTO Users (username, password_hash) VALUES (?, ?)"
 
@@ -36,18 +37,22 @@ insert_categories_command = """
 INSERT INTO Recipe_Categories (recipe_id, category_id) VALUES (?, ?)
 """
 
+create_review_command = """
+REPLACE INTO Reviews (user_id, recipe_id, rating, content) VALUES (?, ?, ?, ?)
+"""
+
 food_words = ["suomi", "banaani", "halloumi", "pata", "italia", "isoäidin"]
 ingredient_words = ["banaani", "mansikka", "jauheliha", "random", "suola",
                     "muumio", "vetyperoksidi", "parmesaani", "juusto",
                     "mozarella"]
 
 with db.get_cursor() as cur:
-    for i in range(1,user_count+1):
+    for i in range(1, user_count+1):
         username=f"bot_user_{i}"
         password=f"bot_password_{i}"
         cur.execute(create_user_command, [username, password])
 
-    for i in range(1,recipe_count+1):
+    for i in range(1, recipe_count+1):
         user_id = randint(1, user_count)
 
         title = " ".join([choice(food_words), randomword(),
@@ -75,3 +80,10 @@ with db.get_cursor() as cur:
         for category_id in cats:
             cur.execute(insert_categories_command, [recipe_id, category_id])
 
+    for i in range(1, comment_count_big+1):
+        user_id = randint(1,user_count)
+        rating = randint(1,5)
+        content = " ".join(["kommentti"] + randomwords(randint(0, 50))
+                  + choices(food_words, k=randint(0, 20))
+                  + choices(ingredient_words, k=randint(0, 60)))
+        cur.execute(create_review_command, [user_id, 1, rating, content])
