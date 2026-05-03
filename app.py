@@ -241,6 +241,7 @@ def edit(recipe_id):
             flash("liian pitkät ohjeet", "error")
             return redirect(f"/edit/{recipe_id}")
 
+        # checking privileges is done in update_recipe in the sql command
         queries.update_recipe(title, description, ingredients, instructions,
                               recipe_id, user_id, categories)
 
@@ -255,7 +256,7 @@ def create_review():
 
     user_id = session["user_id"]
     recipe_id = request.form["recipe_id"]
-    rating = request.form["rating"]
+    rating = request.form["rating"] # validation in the sql schema
     content = request.form["content"]
     if len(content) > REVIEW_MAXLENGTH:
         flash("liian pitkä kommentti", "error")
@@ -269,7 +270,7 @@ def remove(recipe_id):
     if request.method == "GET":
         recipe_data = queries.get_recipe(recipe_id)
 
-        if recipe is None:
+        if recipe_data is None:
             abort(404)
 
         if recipe_data["user_id"] != session.get("user_id"):
