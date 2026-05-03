@@ -1,4 +1,3 @@
-from os import system
 from random import choice, choices, randint, sample
 from string import ascii_lowercase
 
@@ -16,10 +15,6 @@ def randomwords(n=5):
 
 categories_queries = db.query("SELECT id FROM Categories")
 categories = [i[0] for i in categories_queries]
-
-system("rm database.db")
-system("sqlite3 database.db <schema.sql")
-system("sqlite3 database.db <add_categories.sql")
 
 user_count = 10**4
 recipe_count = 10**5
