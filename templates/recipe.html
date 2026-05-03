@@ -62,7 +62,7 @@
 
     {% for review in reviews %}
     <article>
-        <h3>Käyttäjän {{review.username}} arvostelu</h3>
+        <h3>Käyttäjän <a href="/user/{{review.user_id}}">{{review.username}}</a> arvostelu</h3>
         <p> Tähdet: {{review.rating}} </p>
         <p class="review-content">{{review.content}}</p>
     </article>
