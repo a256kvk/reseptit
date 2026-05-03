@@ -24,9 +24,9 @@ def get_after():
 
 def get_page_last_id(results):
     if len(results) > 1:
-        last_id = int(results[-2]["id"])
+        return int(results[-2]["id"])
     else:
-        last_id = 0
+        return 0
 
 @app.route("/")
 def index():
