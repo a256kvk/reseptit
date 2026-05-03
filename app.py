@@ -16,14 +16,15 @@ def check_csrf():
     if request.form["csrf_token"] != session["csrf_token"]:
         abort(403)
 
-@app.route("/")
-def index():
+def get_after():
     after = request.args.get("after")
     if after is None:
-        after = 0
-    else:
-        after = int(after)
-    print("after: ",after)
+        return 0
+    return int(after)
+
+@app.route("/")
+def index():
+    after = get_after()
     recipes = queries.get_recipes(after)
     if len(recipes) > 1:
         last_id = int(recipes[-2]["id"])
@@ -44,16 +45,22 @@ def user(user_id):
 
 @app.route("/recipe/<int:recipe_id>")
 def recipe(recipe_id):
+    after = get_after()
     recipe_data = queries.get_recipe(recipe_id)
     if recipe_data is None:
         abort(404)
     categories = queries.get_recipe_categories(recipe_id)
     user_id = session.get("user_id")
     user_review = queries.get_user_review(recipe_id, user_id)
+    reviews = queries.get_reviews(recipe_id, after)
+    if len(reviews) > 1:
+        last_id = int(reviews[-2]["id"])
+    else:
+        last_id = 0
     return render_template("recipe.html", recipe=recipe_data,
-                           categories=categories,
-                           reviews=queries.get_reviews(recipe_id),
-                           user_review=user_review)
+                           categories=categories, reviews=reviews,
+                           user_review=user_review, last_id=last_id,
+                           next_page_needed=len(reviews)>100)
 
 USERNAME_MINLENGTH = 1
 USERNAME_MAXLENGTH = 20
@@ -325,11 +332,7 @@ def search():
         or not categories_set.issubset(all_category_ids)
     )
 
-    after = request.args.get("after")
-    if after is None:
-        after = 0
-    else:
-        after = int(after)
+    after = get_after()
 
     if user_id is None:
         if invalid_categories:

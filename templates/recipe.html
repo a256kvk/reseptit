@@ -67,6 +67,9 @@
         <p class="review-content">{{review.content}}</p>
     </article>
     {% endfor %}
+    {% if next_page_needed %}
+    <a href="/?after={{last_id}}">seuraava sivu</a>
+    {% endif %}
   </div>
 
 {% endblock %}
